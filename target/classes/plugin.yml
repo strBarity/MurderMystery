@@ -1,0 +1,9 @@
+name: Murder
+version: 1.0.0
+api-version: 1.12
+main: main.Main
+authors: [ Barity_, Chocoswi ]
+description: 머더 미스터리
+commands:
+  murder:
+    description: 머더 미스터리 명령어
