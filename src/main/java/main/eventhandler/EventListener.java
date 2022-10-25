@@ -1,7 +1,10 @@
 package main.eventhandler;
 
 import main.Main;
+import main.timerhandler.CountdownTimer;
+import main.timerhandler.ExitTimer;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -10,43 +13,99 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.scoreboard.*;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.player.*;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.scoreboard.DisplaySlot;
+import org.bukkit.scoreboard.Objective;
+import org.bukkit.scoreboard.Score;
+import org.bukkit.scoreboard.Scoreboard;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.HashMap;
 
 public class EventListener implements Listener {
-    private static final HashMap<Player, Integer> taskId = new HashMap<>();
-    @EventHandler (priority=EventPriority.HIGH)
+    public static final HashMap<Player, Integer> taskId = new HashMap<>();
+    @EventHandler(priority=EventPriority.HIGHEST)
     public void onAttack(@NotNull EntityDamageByEntityEvent e) {
         e.setCancelled(true);
         if (e.getDamager().getType().equals(EntityType.PLAYER) && e.getEntity().getType().equals(EntityType.PLAYER)) {
             e.getDamager().sendMessage(Main.INDEX + "너는 방금 사람을 찔렀다!!");
         }
     } @EventHandler
+    public void onInventoryClick(@NotNull InventoryClickEvent e) {
+        Player p = (Player) e.getWhoClicked();
+        if (e.getCurrentItem().getItemMeta().getDisplayName().contains("게임 나가기")) {
+            e.setCancelled(true);
+            if (ExitTimer.getExitTimer().containsKey(p)) {
+                ExitTimer.getExitTimer().remove(p);
+                p.sendMessage(Main.INDEX + "로비로 이동이 취소되었습니다.");
+            } else {
+                ExitTimer.getExitTimer().put(p, 60);
+                p.sendMessage(Main.INDEX + "§e3초 후에 로비로 이동합니다. 취소하려면 다시 우클릭하세요.");
+            }
+        }
+    } @EventHandler
+    public void onInteract(@NotNull PlayerInteractEvent e) {
+        Player p = e.getPlayer();
+        if (p.getInventory().getItemInMainHand().getType().equals(Material.BED) && p.getInventory().getItemInMainHand().getItemMeta().getDisplayName().contains("게임 나가기")) {
+            e.setCancelled(true);
+            if (ExitTimer.getExitTimer().containsKey(p)) {
+                ExitTimer.getExitTimer().remove(p);
+                p.sendMessage(Main.INDEX + "로비로 이동이 취소되었습니다.");
+            } else {
+                ExitTimer.getExitTimer().put(p, 60);
+                p.sendMessage(Main.INDEX + "§e3초 후에 로비로 이동합니다. 취소하려면 다시 우클릭하세요.");
+            } return;
+        } if (e.getClickedBlock() != null) e.setCancelled(true);
+    } @EventHandler
+    public void onDrop(@NotNull PlayerDropItemEvent e) {
+        e.setCancelled(true);
+    }
+    @EventHandler
     public void onJoin(@NotNull PlayerJoinEvent e) {
         e.setJoinMessage(Main.INDEX + e.getPlayer().getName() + "님이 접속했습니다.");
+        e.getPlayer().getInventory().clear();
+        ItemStack i = new ItemStack(Material.BED);
+        ItemMeta im = i.getItemMeta();
+        im.setDisplayName("§c게임 나가기 §7(우클릭)");
+        im.setLore(Arrays.asList("§a우클릭 시 3초 후 로비로 돌아갑니다.", "§7다시 우클릭을 누르면 취소됩니다.", "" ,"§e클릭해서 로비로 돌아가기"));
+        i.setItemMeta(im);
+        e.getPlayer().getInventory().setItem(8, i);
         int id = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(Main.getPlugin(Main.class), () -> {
-            ScoreboardManager manager = Bukkit.getScoreboardManager();
-            final Scoreboard board = manager.getNewScoreboard();
+            final Scoreboard board = Bukkit.getScoreboardManager().getNewScoreboard();
             final Objective objective = board.registerNewObjective("§e§l머더 미스터리", "dummy");
             objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-            Score score1 = objective.getScore(" ");
-            score1.setScore(2);
-            Score nickname = objective.getScore("닉네임: " + e.getPlayer().getName());
-            nickname.setScore(1);
-            Score score2 = objective.getScore("  ");
-            score2.setScore(0);
+            Score t = objective.getScore("§7" + LocalDate.now().format(DateTimeFormatter.ofPattern("MM/dd/yy")) + "§8 Murder"); t.setScore(9);
+            Score b1 = objective.getScore(" "); b1.setScore(8);
+            Score m = objective.getScore("§f맵: §a" + e.getPlayer().getWorld().getName()); m.setScore(7);
+            Score p = objective.getScore("§f플레이어: §a" + Bukkit.getServer().getOnlinePlayers().size() + "/32"); p.setScore(6);
+            Score b2 = objective.getScore("  "); b2.setScore(5);
+            if (Bukkit.getOnlinePlayers().size() > 1) {
+                Score s = objective.getScore("§a" + CountdownTimer.getStartCountdown() + "초 §f후 시작");
+                s.setScore(4);
+            } else {
+                Score s = objective.getScore("§f플레이어를 기다리는 중...");
+                s.setScore(4);
+            } Score b3 = objective.getScore("   "); b3.setScore(3);
+            Score mo = objective.getScore("§f모드: §a일반"); mo.setScore(2);
+            Score b4 = objective.getScore("    "); b4.setScore(1);
+            Score a = objective.getScore("§eChoco24h"); a.setScore(0);
             e.getPlayer().setScoreboard(board);
         }, 0, 20L);
         taskId.put(e.getPlayer(), id);
     } @EventHandler
     public void onQuit(@NotNull PlayerQuitEvent e) {
-        Bukkit.getScheduler().cancelTask(taskId.get(e.getPlayer()));
-        e.setQuitMessage(Main.INDEX + e.getPlayer().getName() + "님이 퇴장했습니다.");
+        try {
+            e.setQuitMessage(Main.INDEX + e.getPlayer().getName() + "님이 퇴장했습니다.");
+            Bukkit.getScheduler().cancelTask(taskId.get(e.getPlayer()));
+        } catch (NullPointerException n) {
+            for (Player p : Bukkit.getOnlinePlayers()) if (p.isOp()) p.sendMessage(Main.INDEX + "§7" + e.getPlayer().getName() + "에게 할당된 스코어보드 작업이 없어 NullPointerException이 처리되었습니다.");
+        }
     } @EventHandler
     public void onChat(@NotNull AsyncPlayerChatEvent e) {
         e.setCancelled(true);
@@ -60,6 +119,7 @@ public class EventListener implements Listener {
         }
     } @EventHandler
     public void onHunger(@NotNull FoodLevelChangeEvent e) {
+        e.setCancelled(true);
         Player p = (Player) e.getEntity();
         p.setFoodLevel(20);
     }
