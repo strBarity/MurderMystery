@@ -65,7 +65,7 @@ public class EventListener implements Listener {
             a.setScore(0);
             p.setScoreboard(board);
         }, 0, 20L);
-        EventListener.getTaskId().put(p, i);
+        taskId.put(p, i);
     }
     public static final HashMap<Player, Integer> taskId = new HashMap<>();
     @EventHandler(priority=EventPriority.HIGHEST)
@@ -201,8 +201,5 @@ public class EventListener implements Listener {
             s.broadcastMessage(Main.INDEX + "§6onFood§c에서 오류가 발생했습니다: §4" + exception.getClass().getSimpleName());
             exception.printStackTrace();
         }
-    }
-    public static HashMap<Player, Integer> getTaskId() {
-        return taskId;
     }
 }
