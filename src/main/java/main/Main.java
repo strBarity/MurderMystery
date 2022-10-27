@@ -12,7 +12,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Objects;
 
-public final class Main extends JavaPlugin{
+public final class Main extends JavaPlugin {
     public static final Server s = Bukkit.getServer();
     public static final String INDEX = "§f[§cMurder§f] ";
     @Override
