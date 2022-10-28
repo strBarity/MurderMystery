@@ -138,7 +138,7 @@ public class EventListener implements Listener {
     public void onJoin(@NotNull PlayerJoinEvent e) {
         try {
             e.getPlayer().getInventory().clear();
-            e.getPlayer().teleport(new Location(e.getPlayer().getWorld(), 104.5, 88.0, 176.5));
+            e.getPlayer().teleport(new Location(e.getPlayer().getWorld(), 104.5, 88.0, 176.5, 90F, 0F));
             if (e.getPlayer().getUniqueId().toString().equals("604d2144-5577-4330-a2b4-dbe04e3b9cc3")) {
                 e.setJoinMessage(Main.INDEX + "누군가...?가 접속했습니다.");
                 for (Player p : Bukkit.getOnlinePlayers()) p.playSound(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 100F, 1F);
