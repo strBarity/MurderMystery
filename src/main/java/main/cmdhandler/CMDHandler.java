@@ -30,7 +30,9 @@ public class CMDHandler implements TabExecutor {
                     }
                 }
             } else CMDCooldownTimer.getCMDClickStack().put((Player) commandSender, 1);
-            if (s.equals("murder")) MurderTHandler.onCommand(commandSender, strings);
+            if ("murder".equals(s)) {
+                MurderTHandler.onCommand(commandSender, strings);
+            }
         } catch (Exception e) {
             Main.s.broadcastMessage(Main.INDEX + "§6onCommand§c에서 오류가 발생했습니다: §4" + e.getClass().getSimpleName());
             e.printStackTrace();
@@ -40,11 +42,16 @@ public class CMDHandler implements TabExecutor {
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
         try {
-            if (s.equals("murder") || commandSender.isOp()) {
-                if (strings.length == 1) return Arrays.asList("task", "game");
-                if (strings.length == 2) {
-                    if (strings[0].equals("task")) return Collections.singletonList("cancel");
-                    else if (strings[0].equals("game")) return Arrays.asList("start", "stop");
+            if (commandSender.isOp()) {
+                if ("murder".equals(s)) {
+                    if (strings.length == 1) return Arrays.asList("task", "game", "spawn");
+                    else if (strings.length == 2) {
+                        switch (strings[0]) {
+                            case "task": return Collections.singletonList("cancel");
+                            case "game": return Arrays.asList("start", "stop");
+                            case "spawn": return Arrays.asList("wand", "list", "remove");
+                        }
+                    }
                 }
             }
         } catch (Exception e) {
