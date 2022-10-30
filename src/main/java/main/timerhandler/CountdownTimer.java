@@ -5,7 +5,7 @@ import main.gamehandler.MurderHandler;
 import org.bukkit.Bukkit;
 
 public class CountdownTimer implements Runnable {
-    private static Long startCountdown = 60L;
+    public static Long startCountdown = 60L;
     private static Long gameCountdownSec = 30L;
     private static Long gameCountdownMin = 4L;
     @Override
@@ -13,20 +13,19 @@ public class CountdownTimer implements Runnable {
         if (Bukkit.getOnlinePlayers().size() > 2 && !MurderHandler.gameStarted) {
             startCountdown--;
             if (startCountdown == 0L) {
-                MurderHandler.startGame(Bukkit.getWorld("world"));
+                MurderHandler.startGame(Main.CURRENTMAP);
             }
         } else startCountdown = 60L;
         if (MurderHandler.gameStarted) {
             if (gameCountdownSec <= 0L && gameCountdownMin > 0L) {
                 gameCountdownSec = 59L;
                 gameCountdownMin--;
-            } else gameCountdownSec--;
-            if (gameCountdownSec == 0L && gameCountdownMin == 0L) {
-                MurderHandler.stopGame(Main.CURRENTMAP, true, true);
-            }
-        } else gameCountdownSec = 30L;
-    } public static Long getStartCountdown() {
-        return startCountdown;
+            } else if (gameCountdownSec > 0L) gameCountdownSec--;
+            if (gameCountdownSec == 0L && gameCountdownMin == 0L) MurderHandler.stopGame(Main.CURRENTMAP, true, true);
+        } else {
+            gameCountdownSec = 30L;
+            gameCountdownMin = 4L;
+        }
     } public static Long getGameCountdownSec() {
         return gameCountdownSec;
     } public static Long getGameCountdownMin() {

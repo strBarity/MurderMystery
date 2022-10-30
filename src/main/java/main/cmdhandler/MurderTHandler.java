@@ -5,16 +5,15 @@ import com.mojang.authlib.properties.Property;
 import main.Main;
 import main.datahandler.SpawnLocationData;
 import main.gamehandler.MurderHandler;
+import main.timerhandler.CountdownTimer;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.minecraft.server.v1_12_R1.*;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
+import org.bukkit.*;
 import org.bukkit.command.CommandSender;
 import org.bukkit.craftbukkit.v1_12_R1.CraftServer;
 import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
@@ -196,6 +195,10 @@ public class MurderTHandler {
                 } break;
             case "game":
                 switch (args[1]) {
+                    case "shorten":
+                        CountdownTimer.startCountdown = 5L;
+                        Bukkit.getServer().broadcastMessage(Main.INDEX + "§b관리자가 시작 시간을 단축시켰습니다.");
+                        break;
                     case "start":
                         if (!gameStarted) {
                             Bukkit.getServer().broadcastMessage(Main.INDEX + "§b관리자가 게임을 시작시켰습니다.");

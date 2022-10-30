@@ -5,11 +5,10 @@ import main.datahandler.SpawnLocationData;
 import main.gamehandler.MurderHandler;
 import main.timerhandler.CountdownTimer;
 import main.timerhandler.ExitTimer;
-import net.minecraft.server.v1_12_R1.PacketPlayOutScoreboardTeam;
-import net.minecraft.server.v1_12_R1.PlayerConnection;
-import net.minecraft.server.v1_12_R1.ScoreboardTeam;
-import net.minecraft.server.v1_12_R1.ScoreboardTeamBase;
+import net.minecraft.server.v1_12_R1.*;
 import org.bukkit.*;
+import org.bukkit.Material;
+import org.bukkit.SoundCategory;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_12_R1.scoreboard.CraftScoreboard;
@@ -27,6 +26,8 @@ import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.MaterialData;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Score;
@@ -70,7 +71,7 @@ public class EventListener implements Listener {
                 t.setScore(11);
                 Score b1 = objective.getScore(" ");
                 b1.setScore(10);
-                Score r = objective.getScore("§f역할: §a제작중");
+                Score r = objective.getScore("§f역할: " + MurderHandler.roleType.get(p));
                 r.setScore(9);
                 Score b2 = objective.getScore("  ");
                 b2.setScore(8);
@@ -82,9 +83,9 @@ public class EventListener implements Listener {
                 Score b3 = objective.getScore("   ");
                 b3.setScore(5);
                 Score b = objective.getScore("§f탐정: §a생존");
-                if (MurderHandler.bowType == 1) {
+                if (MurderHandler.bowType == MurderHandler.BowType.BowDrop) {
                     b = objective.getScore("§f활: §c떨어짐");
-                } else if (MurderHandler.bowType == 2) {
+                } else if (MurderHandler.bowType == MurderHandler.BowType.BowNotDrop) {
                     b = objective.getScore("§f활: §a떨어지지 않음");
                 } b.setScore(4);
                 Score b4 = objective.getScore("     ");
@@ -102,7 +103,7 @@ public class EventListener implements Listener {
                 Score b2 = objective.getScore("  ");
                 b2.setScore(5);
                 if (Bukkit.getOnlinePlayers().size() > 2) {
-                    Score s = objective.getScore("§a" + CountdownTimer.getStartCountdown() + "초 §f후 시작");
+                    Score s = objective.getScore("§a" + CountdownTimer.startCountdown + "초 §f후 시작");
                     s.setScore(4);
                 } else {
                     Score s = objective.getScore("§f플레이어를 기다리는 중...");
@@ -123,9 +124,6 @@ public class EventListener implements Listener {
     public void onAttack(@NotNull EntityDamageByEntityEvent e) {
         try {
             e.setCancelled(true);
-            if (e.getDamager().getType().equals(EntityType.PLAYER) && e.getEntity().getType().equals(EntityType.PLAYER)) {
-                e.getDamager().sendMessage(Main.INDEX + "너는 방금 사람을 찔렀다!!");
-            }
         } catch (Exception exception) {
             printException(getClassName(), getMethodName(), exception);
         }
@@ -164,7 +162,7 @@ public class EventListener implements Listener {
                 e.setCancelled(true);
                 if (e.getClickedBlock().getType().equals(Material.CAKE_BLOCK)) {
                     p.playSound(p.getLocation(), Sound.ENTITY_CHICKEN_EGG, SoundCategory.MASTER, 100, 1);
-                    p.getWorld().spawnParticle(Particle.END_ROD, 98.5, 98.5, 176.5, 10, 0.125, 0.125, 0.125, 3);
+                    p.getWorld().spawnParticle(Particle.CRIT, 98.5, 98.5, 176.5, 10, 0.125, 0.125, 0.125, 3);
                 }
             }
             if (p.getInventory().getItemInMainHand() == null || p.getInventory().getItemInMainHand().getItemMeta() == null || p.getInventory().getItemInMainHand().getItemMeta().getDisplayName() == null) return;
@@ -237,12 +235,17 @@ public class EventListener implements Listener {
                     rankType.put(p, "§a[VIP] ");
                     rankColor.put(p, ChatColor.GREEN);
                     p.setPlayerListName("§a[VIP] " + p.getName() + " ");
-                } if (MurderHandler.gameStarted) e.setJoinMessage(null);
-                else {
-                    e.setJoinMessage(Main.INDEX + rankColor.get(p) + p.getName() + "§e님이 참여했습니다! (§b" + Bukkit.getOnlinePlayers().size() + "§e/§b32§e)");
-                    p.playSound(p.getLocation(), Sound.BLOCK_NOTE_HAT, SoundCategory.MASTER, 100, 1);
                 }
-            } ItemStack i = new ItemStack(Material.BED, 1, (short) 14);
+            } if (MurderHandler.gameStarted) {
+                e.setJoinMessage(null);
+                p.setGameMode(GameMode.CREATIVE);
+                p.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 0), true);
+                MurderHandler.roleType.put(p, "§8관전자");
+            } else {
+                e.setJoinMessage(Main.INDEX + rankColor.get(p) + p.getName() + "§e님이 참여했습니다! (§b" + Bukkit.getOnlinePlayers().size() + "§e/§b32§e)");
+                p.playSound(p.getLocation(), Sound.BLOCK_NOTE_HAT, SoundCategory.MASTER, 100, 1);
+            }
+            ItemStack i = new ItemStack(Material.BED, 1, (short) 14);
             ItemMeta im = i.getItemMeta();
             im.setDisplayName("§c게임 나가기 §7(우클릭)");
             im.setLore(Arrays.asList("§a우클릭 시 3초 후 로비로 돌아갑니다.", "§7다시 우클릭을 누르면 취소됩니다.", "", "§e클릭해서 로비로 돌아가기"));
@@ -283,8 +286,7 @@ public class EventListener implements Listener {
     } @EventHandler
     public void onChat(@NotNull AsyncPlayerChatEvent e) {
         try {
-            e.setCancelled(true);
-            s.broadcastMessage("| " + e.getPlayer().getName() + ": " + e.getMessage());
+            e.setFormat(rankType.get(e.getPlayer()) + e.getPlayer().getName() + "§f: " + e.getMessage());
         } catch (Exception exception) {
             printException(getClassName(), getMethodName(), exception);
         }

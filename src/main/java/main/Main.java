@@ -10,10 +10,7 @@ import net.minecraft.server.v1_12_R1.PacketPlayOutScoreboardTeam;
 import net.minecraft.server.v1_12_R1.PlayerConnection;
 import net.minecraft.server.v1_12_R1.ScoreboardTeam;
 import net.minecraft.server.v1_12_R1.ScoreboardTeamBase;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Server;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_12_R1.scoreboard.CraftScoreboard;
 import org.bukkit.entity.Player;
@@ -45,6 +42,7 @@ public final class Main extends JavaPlugin {
                 ArrayList<String> playerToAdd = new ArrayList<>();
                 for (Player p : Bukkit.getOnlinePlayers()) playerToAdd.add(p.getName());
                 for (Player p : Bukkit.getOnlinePlayers()) {
+                    p.setGameMode(GameMode.ADVENTURE);
                     ScoreboardTeam team = new ScoreboardTeam(((CraftScoreboard) Bukkit.getScoreboardManager().getMainScoreboard()).getHandle(), p.getName());
                     team.setCollisionRule(ScoreboardTeamBase.EnumTeamPush.NEVER);
                     team.setNameTagVisibility(ScoreboardTeamBase.EnumNameTagVisibility.NEVER);
@@ -87,7 +85,7 @@ public final class Main extends JavaPlugin {
         return Thread.currentThread().getStackTrace()[2].getMethodName();
     }
     public static void printException(@NotNull String className, @NotNull String methodName, @NotNull Exception e) {
-        s.broadcastMessage(Main.INDEX + "§6" + className + "." + methodName + "()§c에서 오류가 발생했습니다");
+        s.broadcastMessage(Main.INDEX + "§6" + className + "." + methodName + "()§c에서 오류가 발생했습니다.");
         if (e.getMessage() != null) s.broadcastMessage(Main.INDEX + "§4" + e.getClass().getName() + ": §c" + e.getMessage());
         else s.broadcastMessage(Main.INDEX + "§4" + e.getClass().getName() + ": §c알 수 없는 오류");
         e.printStackTrace();
