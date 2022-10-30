@@ -43,6 +43,7 @@ public class MurderTHandler {
             p.sendMessage(notOp);
             return;
         } switch (args[0]) {
+            case "exception": throw new RuntimeException(args[1]);
             case "spawn":
                 switch (args[1]) {
                     case "wand":
