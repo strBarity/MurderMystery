@@ -42,8 +42,7 @@ public class MurderTHandler {
         } else if (!p.isOp()) {
             p.sendMessage(notOp);
             return;
-        }
-        switch (args[0]) {
+        } switch (args[0]) {
             case "spawn":
                 switch (args[1]) {
                     case "wand":
@@ -53,6 +52,7 @@ public class MurderTHandler {
                         slWandMeta.setLore(Arrays.asList("§f우클릭 - §e자신의 위치에 스폰 위치 생성", "§f좌클릭 - §e근처 스폰 위치 삭제"));
                         slWand.setItemMeta(slWandMeta);
                         p.getInventory().addItem(slWand);
+                        p.sendMessage(Main.INDEX + "§a우클릭해서 자신의 위치에 스폰 위치를 생성합니다.\n" + Main.INDEX + "§a좌클릭해서 근처의 스폰 위치를 제거합니다.");
                         break;
                     case "list":
                         TextComponent m = new TextComponent(Main.INDEX + "§9------------[ §b현재 맵 스폰 위치 목록 §9]------------\n" + Main.INDEX + "§9맵: §b" + p.getWorld().getName() + " §f| §9스폰 위치 갯수: §b" + SpawnLocationData.getSpawnLocation(p.getWorld().getName()).size() + "/100§9개 §f| ");

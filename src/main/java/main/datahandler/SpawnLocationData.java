@@ -12,23 +12,26 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 public class SpawnLocationData {
     private static FileConfiguration spawnLocationData;
     private static final File spawnLocation = new File("plugins/Murder/spawnLocationData.yml");
+    public static final HashMap<Player, Integer> slWandId = new HashMap<>();
     public static void registerSLWand(Player p) {
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(Main.getPlugin(Main.class), () -> {
+        int i = Bukkit.getScheduler().scheduleSyncRepeatingTask(Main.getPlugin(Main.class), () -> {
             if (p.getInventory().getItemInMainHand() != null && p.getInventory().getItemInMainHand().getItemMeta() != null && p.getInventory().getItemInMainHand().getItemMeta().getDisplayName() != null && p.getInventory().getItemInMainHand().getItemMeta().getDisplayName().contains("스폰 위치 설정 도구")) {
                 for (String s : getSpawnLocation(Main.CURRENTMAP.getName())) {
                     final String[] parts = s.split(",");
                     final int x = Integer.parseInt(parts[0]);
                     final int y = Integer.parseInt(parts[1]);
                     final int z = Integer.parseInt(parts[2]);
-                    Main.CURRENTMAP.spawnParticle(Particle.REDSTONE, new Location(Main.CURRENTMAP, x, y+0.5, z), 25, 0.125, 0.125, 0.125, 0.0);
+                    Main.CURRENTMAP.spawnParticle(Particle.REDSTONE, new Location(Main.CURRENTMAP, x+0.5, y+0.5, z+0.5), 25, 0.125, 0.125, 0.125, 0.0);
                 }
             }
         }, 0, 5L);
+        slWandId.put(p, i);
     }
     public static void loadData() {
         spawnLocationData = YamlConfiguration.loadConfiguration(spawnLocation);

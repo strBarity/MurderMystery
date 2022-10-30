@@ -14,6 +14,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static main.Main.*;
+
 public class CMDHandler implements TabExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
@@ -34,8 +36,7 @@ public class CMDHandler implements TabExecutor {
                 MurderTHandler.onCommand(commandSender, strings);
             }
         } catch (Exception e) {
-            Main.s.broadcastMessage(Main.INDEX + "§6onCommand§c에서 오류가 발생했습니다: §4" + e.getClass().getSimpleName());
-            e.printStackTrace();
+            printException(getClassName(), getMethodName(), e);
         } return false;
     }
 
@@ -55,8 +56,7 @@ public class CMDHandler implements TabExecutor {
                 }
             }
         } catch (Exception e) {
-            Main.s.broadcastMessage(Main.INDEX + "§6onTabComplete§c에서 오류가 발생했습니다: §4" + e.getClass().getSimpleName());
-            e.printStackTrace();
+            printException(getClassName(), getMethodName(), e);
         }
         return null;
     }
