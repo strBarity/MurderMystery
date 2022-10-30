@@ -1,5 +1,7 @@
 package main.eventhandler;
 
+import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.properties.Property;
 import main.Main;
 import main.datahandler.SpawnLocationData;
 import main.gamehandler.MurderHandler;
@@ -10,6 +12,8 @@ import org.bukkit.*;
 import org.bukkit.Material;
 import org.bukkit.SoundCategory;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.craftbukkit.v1_12_R1.CraftServer;
+import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_12_R1.scoreboard.CraftScoreboard;
 import org.bukkit.entity.EntityType;
@@ -20,6 +24,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
@@ -36,11 +41,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.*;
 
 import static main.Main.*;
+import static main.timerhandler.ItemCooldownTimer.bowCooldown;
 
 public class EventListener implements Listener {
     public static final int startPlayerCount = 4;
@@ -129,14 +133,87 @@ public class EventListener implements Listener {
             Player attacker = (Player) e.getDamager();
             Player victim = (Player) e.getEntity();
             if (attacker.getInventory().getItemInMainHand() == null || attacker.getInventory().getItemInMainHand().getItemMeta() == null || attacker.getInventory().getItemInMainHand().getItemMeta().getDisplayName() == null) return;
-            if (MurderHandler.murderer == e.getDamager() && attacker.getInventory().getItemInMainHand().getItemMeta().getDisplayName().contains("칼")) {
+            if (MurderHandler.murderer == e.getDamager() && (MurderHandler.roleType.get(victim).contains("시민") || MurderHandler.roleType.get(victim).contains("탐정")) && attacker.getInventory().getItemInMainHand().getItemMeta().getDisplayName().contains("칼")) {
                 MurderHandler.roleType.put(victim, "§7사망");
                 victim.sendMessage(INDEX + "§c죽었습니다! §e이제부터 관전자 상태입니다.");
-                victim.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 3, 0), true);
+                victim.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 60, 0), true);
                 victim.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 0), true);
                 victim.setAllowFlight(true);
+                victim.getInventory().clear();
                 for (Player p : Bukkit.getOnlinePlayers()) p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_HURT, SoundCategory.MASTER, 100F, 1F);
+                MurderHandler.innocentAlive--;
+                MurderHandler.murderKills++;
+                int i1 = 0; int i2 = 0;
+                final float yaw = victim.getLocation().getYaw();
+                if (yaw >= -45 && yaw < 45) {
+                    i1 = 104; i2 = 175;
+                } else if (yaw >= 45 && yaw < 135) {
+                    i1 = 105; i2 = 176;
+                } else if ((yaw >= 135 && yaw <= 180) || (yaw >= -180 && yaw < -135)) {
+                    i1 = 104; i2 = 177;
+                } else if (yaw >= -135 && yaw < -45) {
+                    i1 = 103; i2 = 176;
+                } if (i1 == 0) {
+                    double r = Math.random();
+                    if (r <= 0.25) {
+                        i1 = 104; i2 = 175;
+                    } else if (r <= 0.5) {
+                        i1 = 105; i2 = 176;
+                    } else if (r <= 0.75) {
+                        i1 = 104; i2 = 177;
+                    } else {
+                        i1 = 103; i2 = 176;
+                    }
+                } final int x = i1; final int z = i2;
+                Location l = victim.getLocation();
+                for (Player player : Bukkit.getOnlinePlayers()) {
+                    CraftPlayer c = (CraftPlayer) victim;
+                    Property property = c.getProfile().getProperties().get("textures").iterator().next();
+                    MinecraftServer server = ((CraftServer) Bukkit.getServer()).getServer();
+                    WorldServer world = ((CraftWorld) Bukkit.getWorlds().get(0)).getHandle();
+                    EntityPlayer npc = new EntityPlayer(server, world, new GameProfile(UUID.randomUUID(), ""), new PlayerInteractManager(world));
+                    ScoreboardTeam team = new ScoreboardTeam(((CraftScoreboard) Bukkit.getScoreboardManager().getMainScoreboard()).getHandle(), victim.getName());
+                    team.setNameTagVisibility(ScoreboardTeamBase.EnumNameTagVisibility.NEVER);
+                    team.setCollisionRule(ScoreboardTeamBase.EnumTeamPush.NEVER);
+                    npc.getProfile().getProperties().removeAll("textures");
+                    npc.getProfile().getProperties().put("textures", new Property("textures", property.getValue(), property.getSignature()));
+                    npc.getDataWatcher().set(new DataWatcherObject<>(13, DataWatcherRegistry.a), (byte) 0xFF);
+                    npc.setLocation(l.getX(), l.getY(), l.getZ(), 0F, 0F);
+                    PlayerConnection connection = ((CraftPlayer) player).getHandle().playerConnection;
+                    connection.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, npc));
+                    connection.sendPacket(new PacketPlayOutNamedEntitySpawn(npc));
+                    Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getPlugin(Main.class), () -> {
+                        connection.sendPacket(new PacketPlayOutEntityMetadata(npc.getId(), npc.getDataWatcher(), true));
+                        connection.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, npc));
+                        connection.sendPacket(new PacketPlayOutEntityHeadRotation(npc, (byte) 64));
+                        connection.sendPacket(new PacketPlayOutBlockChange(npc.world, new BlockPosition(npc.locX, npc.locY, npc.locZ)));
+                        connection.sendPacket(new PacketPlayOutBed(npc, new BlockPosition(x, 79, z)));
+                        connection.sendPacket(new PacketPlayOutScoreboardTeam(team, 1));
+                        connection.sendPacket(new PacketPlayOutScoreboardTeam(team, 0));
+                        connection.sendPacket(new PacketPlayOutScoreboardTeam(team, Collections.singletonList(npc.getName()), 3));
+                        npc.teleportTo(new Location(victim.getWorld(), l.getX(), l.getY(), l.getZ(), 90F, 0F), false);
+                        connection.sendPacket(new PacketPlayOutEntityTeleport(npc));
+                    }, 1L);
+                }
             }
+        } catch (Exception exception) {
+            printException(getClassName(), getMethodName(), exception);
+        }
+    } @EventHandler
+    public void onBowShoot(EntityShootBowEvent e) {
+        try {
+            if (!e.getEntity().getType().equals(EntityType.PLAYER)) return;
+            Player p = (Player) e.getEntity();
+            if (MurderHandler.roleType.get(p).contains("탐정")) {
+                bowCooldown.put(p, 5.0);
+            }
+        } catch (Exception exception) {
+            printException(getClassName(), getMethodName(), exception);
+        }
+    } @EventHandler
+    public void onPickupArrow(PlayerPickupArrowEvent e) {
+        try {
+            e.setCancelled(true);
         } catch (Exception exception) {
             printException(getClassName(), getMethodName(), exception);
         }
@@ -174,7 +251,7 @@ public class EventListener implements Listener {
     public void onInteract(@NotNull PlayerInteractEvent e) {
         try {
             Player p = e.getPlayer();
-            if ((p.getInventory().getItemInMainHand() != null && p.getInventory().getItemInMainHand().getItemMeta() != null && p.getInventory().getItemInMainHand().getItemMeta().getDisplayName() != null && p.getInventory().getItemInMainHand().getItemMeta().getDisplayName().contains("활"))) return;
+            if (p.getInventory().getItemInMainHand() != null && p.getInventory().getItemInMainHand().getItemMeta() != null && p.getInventory().getItemInMainHand().getItemMeta().getDisplayName() != null && p.getInventory().getItemInMainHand().getItemMeta().getDisplayName().contains("활") && bowCooldown.get(p) == null) return;
             e.setCancelled(true);
             if (p.getInventory().getItemInMainHand() == null || p.getInventory().getItemInMainHand().getItemMeta() == null || p.getInventory().getItemInMainHand().getItemMeta().getDisplayName() == null) return;
             if (e.getClickedBlock() != null) {

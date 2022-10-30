@@ -7,6 +7,7 @@ import main.gamehandler.MurderHandler;
 import main.timerhandler.CMDCooldownTimer;
 import main.timerhandler.CountdownTimer;
 import main.timerhandler.ExitTimer;
+import main.timerhandler.ItemCooldownTimer;
 import net.minecraft.server.v1_12_R1.PacketPlayOutScoreboardTeam;
 import net.minecraft.server.v1_12_R1.PlayerConnection;
 import net.minecraft.server.v1_12_R1.ScoreboardTeam;
@@ -35,6 +36,7 @@ public final class Main extends JavaPlugin {
             Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new CountdownTimer(), 0L, 20L); /* 타이머 등록 & 시작 */
             Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new ExitTimer(), 0L, 1L); /* 타이머 등록 & 시작 */
             Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new CMDCooldownTimer(), 0L, 20L); /* 타이머 등록 & 시작 */
+            Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new ItemCooldownTimer(), 0L, 2L); /* 타이머 등록 & 시작 */
             this.getDescription().getCommands().keySet().forEach(s -> { /* 커맨드 & 탭컴플리터 등록 */
                 Objects.requireNonNull(getCommand(s)).setExecutor(new CMDHandler()); /* 커맨드 처리 클래스 등록 */
                 Objects.requireNonNull(getCommand(s)).setTabCompleter(new CMDHandler()); /* 탭컴플리터(커맨드 제안) 등록 */

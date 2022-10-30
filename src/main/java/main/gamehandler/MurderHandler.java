@@ -116,6 +116,7 @@ public class MurderHandler {
             Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getPlugin(Main.class), () -> {
                 players[0].getInventory().setItem(1, knife);
                 players[1].getInventory().setItem(1, bow);
+                players[1].getInventory().setItem(9, new ItemStack(Material.ARROW));
                 Bukkit.broadcastMessage(INDEX + "§e살인자가 칼을 얻었습니다!");
                 for (Player p : Bukkit.getOnlinePlayers()) p.playSound(p.getLocation(), Sound.BLOCK_NOTE_HAT, SoundCategory.MASTER, 100F, 1F);
             }, 200L);
