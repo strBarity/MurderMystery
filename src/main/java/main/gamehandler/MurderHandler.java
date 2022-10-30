@@ -20,7 +20,8 @@ public class MurderHandler {
     public static Player murderer = null;
     public static Player detective = null;
     public static String heroName = null;
-    public static int bowType = 0;
+    //public static int bowType = 0;
+    public static BowType bowType = BowType.DectectiveAlive;
     // bowType = 0: 탐정 생존, 1: 활 떨어짐, 2: 활 떨어지지 않음
     public static int innocentAlive = 0;
     public static int murderKills = 0;
@@ -51,6 +52,20 @@ public class MurderHandler {
             for (int z = 174; z <= 178; z++)
                 for (int y = 90; y <= 95; y++) w.getBlockAt(96, y, z).setType(Material.AIR);
             if (SpawnLocationData.getSpawnLocation(Main.CURRENTMAP.getName()).isEmpty()) throw new RuntimeException("저장된 스폰 위치가 존재하지 않습니다");
+            Location[] locations = new Location[SpawnLocationData.getSpawnLocation(Main.CURRENTMAP.getName()).size()];
+            int l=0;
+            for (String s : SpawnLocationData.getSpawnLocation(Main.CURRENTMAP.getName())) {
+                final String[] parts = s.split(",");
+                locations[l] = new Location(Main.CURRENTMAP, Integer.parseInt(parts[0]), Integer.parseInt(parts[1]), Integer.parseInt(parts[2]));
+                l++;
+            } Random random = new Random();
+            for (int i = 0; i < locations.length; i++) {
+                int r = random.nextInt(locations.length - 1);
+                Location tmp = locations[0];
+                locations[0] = locations[r];
+                locations[r] = tmp;
+            } int n = 0;
+            Player[] players = new Player[Bukkit.getOnlinePlayers().size()];
             for (Player p : Bukkit.getOnlinePlayers()) {
                 p.getInventory().clear();
                 players[n] = p;
