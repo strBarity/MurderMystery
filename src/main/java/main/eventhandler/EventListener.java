@@ -43,6 +43,7 @@ import java.util.HashMap;
 import static main.Main.*;
 
 public class EventListener implements Listener {
+    public static final int startPlayerCount = 4;
     public static final HashMap<Player, Integer> boardId = new HashMap<>();
     public static final HashMap<Player, Integer> antiOutMapId = new HashMap<>();
     public static final HashMap<Player, String> rankType = new HashMap<>();
@@ -102,7 +103,7 @@ public class EventListener implements Listener {
                 l.setScore(6);
                 Score b2 = objective.getScore("  ");
                 b2.setScore(5);
-                if (Bukkit.getOnlinePlayers().size() > 2) {
+                if (Bukkit.getOnlinePlayers().size() >= startPlayerCount) {
                     Score s = objective.getScore("§a" + CountdownTimer.startCountdown + "초 §f후 시작");
                     s.setScore(4);
                 } else {
@@ -124,6 +125,18 @@ public class EventListener implements Listener {
     public void onAttack(@NotNull EntityDamageByEntityEvent e) {
         try {
             e.setCancelled(true);
+            if (!e.getDamager().getType().equals(EntityType.PLAYER) || !e.getEntity().getType().equals(EntityType.PLAYER)) return;
+            Player attacker = (Player) e.getDamager();
+            Player victim = (Player) e.getEntity();
+            if (attacker.getInventory().getItemInMainHand() == null || attacker.getInventory().getItemInMainHand().getItemMeta() == null || attacker.getInventory().getItemInMainHand().getItemMeta().getDisplayName() == null) return;
+            if (MurderHandler.murderer == e.getDamager() && attacker.getInventory().getItemInMainHand().getItemMeta().getDisplayName().contains("칼")) {
+                MurderHandler.roleType.put(victim, "§7사망");
+                victim.sendMessage(INDEX + "§c죽었습니다! §e이제부터 관전자 상태입니다.");
+                victim.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 3, 0), true);
+                victim.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 0), true);
+                victim.setAllowFlight(true);
+                for (Player p : Bukkit.getOnlinePlayers()) p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_HURT, SoundCategory.MASTER, 100F, 1F);
+            }
         } catch (Exception exception) {
             printException(getClassName(), getMethodName(), exception);
         }
@@ -134,14 +147,17 @@ public class EventListener implements Listener {
             if (e.getCurrentItem() == null) return;
             else if (e.getCurrentItem().getItemMeta() == null) return;
             else if (e.getCurrentItem().getItemMeta().getDisplayName() == null) return;
-            if (e.getCurrentItem().getItemMeta().getDisplayName().contains("게임 나가기")) {
+            String name = e.getCurrentItem().getItemMeta().getDisplayName();
+            if (name.contains("게임 나가기") || name.contains("칼") || name.equals("활")) {
                 e.setCancelled(true);
-                if (ExitTimer.getExitTimer().containsKey(p)) {
-                    ExitTimer.getExitTimer().remove(p);
-                    p.sendMessage(Main.INDEX + "로비로 이동이 취소되었습니다.");
-                } else {
-                    ExitTimer.getExitTimer().put(p, 60);
-                    p.sendMessage(Main.INDEX + "§e3초 후에 로비로 이동합니다. 취소하려면 다시 우클릭하세요.");
+                if (name.contains("게임 나가기")) {
+                    if (ExitTimer.getExitTimer().containsKey(p)) {
+                        ExitTimer.getExitTimer().remove(p);
+                        p.sendMessage(Main.INDEX + "로비로 이동이 취소되었습니다.");
+                    } else {
+                        ExitTimer.getExitTimer().put(p, 60);
+                        p.sendMessage(Main.INDEX + "§e3초 후에 로비로 이동합니다. 취소하려면 다시 우클릭하세요.");
+                    }
                 }
             }
         } catch (Exception exception) {
@@ -158,16 +174,15 @@ public class EventListener implements Listener {
     public void onInteract(@NotNull PlayerInteractEvent e) {
         try {
             Player p = e.getPlayer();
+            if ((p.getInventory().getItemInMainHand() != null && p.getInventory().getItemInMainHand().getItemMeta() != null && p.getInventory().getItemInMainHand().getItemMeta().getDisplayName() != null && p.getInventory().getItemInMainHand().getItemMeta().getDisplayName().contains("활"))) return;
+            e.setCancelled(true);
+            if (p.getInventory().getItemInMainHand() == null || p.getInventory().getItemInMainHand().getItemMeta() == null || p.getInventory().getItemInMainHand().getItemMeta().getDisplayName() == null) return;
             if (e.getClickedBlock() != null) {
-                e.setCancelled(true);
                 if (e.getClickedBlock().getType().equals(Material.CAKE_BLOCK)) {
                     p.playSound(p.getLocation(), Sound.ENTITY_CHICKEN_EGG, SoundCategory.MASTER, 100, 1);
                     p.getWorld().spawnParticle(Particle.CRIT, 98.5, 98.5, 176.5, 10, 0.125, 0.125, 0.125, 3);
                 }
-            }
-            if (p.getInventory().getItemInMainHand() == null || p.getInventory().getItemInMainHand().getItemMeta() == null || p.getInventory().getItemInMainHand().getItemMeta().getDisplayName() == null) return;
-            if (p.getInventory().getItemInMainHand().getItemMeta().getDisplayName().contains("게임 나가기")) {
-                e.setCancelled(true);
+            } if (p.getInventory().getItemInMainHand().getItemMeta().getDisplayName().contains("게임 나가기")) {
                 if (ExitTimer.getExitTimer().containsKey(p)) {
                     ExitTimer.getExitTimer().remove(p);
                     p.sendMessage(Main.INDEX + "로비로 이동이 취소되었습니다.");
@@ -176,7 +191,6 @@ public class EventListener implements Listener {
                     p.sendMessage(Main.INDEX + "§e3초 후에 로비로 이동합니다. 취소하려면 다시 우클릭하세요.");
                 }
             } else if (p.getInventory().getItemInMainHand().getItemMeta().getDisplayName().contains("스폰 위치 설정 도구")) {
-                e.setCancelled(true);
                 if (e.getAction().equals(Action.RIGHT_CLICK_AIR)) {
                     SpawnLocationData.addSpawnLocation(p.getWorld().getName(), p.getLocation());
                     p.sendMessage(Main.INDEX + p.getWorld().getName() + " §a맵에서 §2(§a" + p.getLocation().getBlockX() + "§2, §a" + p.getLocation().getBlockY() + "§2, §a" + p.getLocation().getBlockZ() + "§2)§a를 스폰 위치에 추가했습니다.");
@@ -213,6 +227,7 @@ public class EventListener implements Listener {
     public void onJoin(@NotNull PlayerJoinEvent e) {
         try {
             Player p = e.getPlayer();
+            p.removePotionEffect(PotionEffectType.INVISIBILITY);
             p.setGameMode(GameMode.ADVENTURE);
             p.getInventory().clear();
             p.teleport(new Location(p.getWorld(), 104.5, 88.0, 176.5, 90F, 0F));
@@ -238,21 +253,20 @@ public class EventListener implements Listener {
                 }
             } if (MurderHandler.gameStarted) {
                 e.setJoinMessage(null);
-                p.setGameMode(GameMode.CREATIVE);
+                p.setAllowFlight(true);
                 p.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 0), true);
                 MurderHandler.roleType.put(p, "§8관전자");
             } else {
-                e.setJoinMessage(Main.INDEX + rankColor.get(p) + p.getName() + "§e님이 참여했습니다! (§b" + Bukkit.getOnlinePlayers().size() + "§e/§b32§e)");
+                ItemStack i = new ItemStack(Material.BED, 1, (short) 14);
+                ItemMeta im = i.getItemMeta();
+                im.setDisplayName("§c게임 나가기 §7(우클릭)");
+                im.setLore(Arrays.asList("§a우클릭 시 3초 후 로비로 돌아갑니다.", "§7다시 우클릭을 누르면 취소됩니다.", "", "§e클릭해서 로비로 돌아가기"));
+                i.setItemMeta(im);
+                i.setData(new MaterialData(Material.BED));
+                p.getInventory().setItem(8, i);
+                if (!p.getUniqueId().toString().equals("604d2144-5577-4330-a2b4-dbe04e3b9cc3")) e.setJoinMessage(Main.INDEX + rankColor.get(p) + p.getName() + "§e님이 참여했습니다! (§b" + Bukkit.getOnlinePlayers().size() + "§e/§b32§e)");
                 p.playSound(p.getLocation(), Sound.BLOCK_NOTE_HAT, SoundCategory.MASTER, 100, 1);
-            }
-            ItemStack i = new ItemStack(Material.BED, 1, (short) 14);
-            ItemMeta im = i.getItemMeta();
-            im.setDisplayName("§c게임 나가기 §7(우클릭)");
-            im.setLore(Arrays.asList("§a우클릭 시 3초 후 로비로 돌아갑니다.", "§7다시 우클릭을 누르면 취소됩니다.", "", "§e클릭해서 로비로 돌아가기"));
-            i.setItemMeta(im);
-            i.setData(new MaterialData(Material.BED));
-            p.getInventory().setItem(8, i);
-            p.getAttribute(Attribute.GENERIC_ATTACK_SPEED).setBaseValue(Double.MAX_VALUE);
+            } p.getAttribute(Attribute.GENERIC_ATTACK_SPEED).setBaseValue(Double.MAX_VALUE);
             registerBoard(p);
             registerAntiOutMap(p);
             SpawnLocationData.registerSLWand(p);
@@ -286,7 +300,7 @@ public class EventListener implements Listener {
     } @EventHandler
     public void onChat(@NotNull AsyncPlayerChatEvent e) {
         try {
-            e.setFormat(rankType.get(e.getPlayer()) + e.getPlayer().getName() + "§f: " + e.getMessage());
+            e.setFormat(rankType.get(e.getPlayer()) + e.getPlayer().getName() + "§7: §f" + e.getMessage());
         } catch (Exception exception) {
             printException(getClassName(), getMethodName(), exception);
         }

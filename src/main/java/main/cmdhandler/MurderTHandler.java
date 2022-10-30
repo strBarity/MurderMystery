@@ -208,13 +208,7 @@ public class MurderTHandler {
                     case "stop":
                         if (gameStarted) {
                             Bukkit.getServer().broadcastMessage(Main.INDEX + "§c관리자가 게임을 중지시켰습니다.");
-                            MurderHandler.stopGame(p.getWorld(), false, false);
-                        } else p.sendMessage(Main.INDEX + "게임이 진행 중이 아닙니다.");
-                        break;
-                    case "stopI":
-                        if (gameStarted) {
-                            Bukkit.getServer().broadcastMessage(Main.INDEX + "§c관리자가 게임을 §a시민 승리§c로 중지시켰습니다.");
-                            MurderHandler.stopGame(p.getWorld(), true, true);
+                            MurderHandler.stopGame(p.getWorld(), true);
                         } else p.sendMessage(Main.INDEX + "게임이 진행 중이 아닙니다.");
                         break;
                 } break;
