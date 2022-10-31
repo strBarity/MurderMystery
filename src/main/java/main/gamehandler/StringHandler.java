@@ -3,7 +3,7 @@ package main.gamehandler;
 import java.util.HashMap;
 import java.util.Map;
 
-public class TranslateHandler {
+public class StringHandler {
     public enum MurderLanguage { Korean, English }
 
     public static Map<String, String> KoreanMessage = new HashMap<>();
