@@ -22,10 +22,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityShootBowEvent;
-import org.bukkit.event.entity.FoodLevelChangeEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
@@ -44,6 +41,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static main.Main.*;
+import static main.gamehandler.MurderHandler.murderer;
 import static main.timerhandler.ItemCooldownTimer.bowCooldown;
 
 public class EventListener implements Listener {
@@ -135,14 +133,24 @@ public class EventListener implements Listener {
             Player attacker = (Player) e.getDamager();
             Player victim = (Player) e.getEntity();
             if (attacker.getInventory().getItemInMainHand() == null || attacker.getInventory().getItemInMainHand().getItemMeta() == null || attacker.getInventory().getItemInMainHand().getItemMeta().getDisplayName() == null) return;
-            if (MurderHandler.murderer == e.getDamager() && (MurderHandler.roleType.get(victim).contains("시민") || MurderHandler.roleType.get(victim).contains("탐정")) && attacker.getInventory().getItemInMainHand().getItemMeta().getDisplayName().contains("칼")) playerDeath(victim, DeathCause.MURDER_KNIFE);
-            if (MurderHandler.detective == e.getDamager() && (!MurderHandler.roleType.get(victim).contains("사망") || !MurderHandler.roleType.get(victim).contains("관전")) && e.getCause().equals(EntityDamageEvent.DamageCause.PROJECTILE)) {
+            if (murderer == e.getDamager() && (MurderHandler.roleType.get(victim).contains("시민") || MurderHandler.roleType.get(victim).contains("탐정")) && attacker.getInventory().getItemInMainHand().getItemMeta().getDisplayName().contains("칼")) playerDeath(victim, DeathCause.MURDER_KNIFE);
+            e.setCancelled(true);
+        } catch (Exception exception) {
+            printException(getClassName(), getMethodName(), exception);
+        }
+    } @EventHandler(priority=EventPriority.HIGH)
+    public void onSnipe(@NotNull ProjectileHitEvent e) {
+        try {
+            if (e.getHitEntity() == null || !e.getHitEntity().getType().equals(EntityType.PLAYER)) return;
+            Player attacker = (Player) e.getEntity().getShooter();
+            Player victim = (Player) e.getHitEntity();
+            if (!MurderHandler.roleType.get(victim).contains("사망") || !MurderHandler.roleType.get(victim).contains("관전")) {
                 if (MurderHandler.roleType.get(victim).contains("시민")) {
                     playerDeath(victim, DeathCause.INNOCENT_SNIPE);
                     playerDeath(attacker, DeathCause.INNOCENT_SHOOT);
                 } else if (MurderHandler.roleType.get(victim).contains("살인자")) {
-                    playerDeath(victim, DeathCause.INNOCENT_SHOOT);
-                    MurderHandler.stopGame(CURRENTMAP, true);
+                    playerDeath(victim, DeathCause.INNOCENT_SNIPE);
+                    MurderHandler.stopGame(CURRENTMAP, true, MurderHandler.WinType.MURDER_DIED, DeathCause.INNOCENT_SNIPE);
                 }
             }
         } catch (Exception exception) {
@@ -339,7 +347,12 @@ public class EventListener implements Listener {
                 Player p = (Player) e.getEntity();
                 p.setHealth(p.getHealthScale());
                 if (p.getFireTicks() > 0) p.setFireTicks(0);
-                if (e.getCause().equals(EntityDamageEvent.DamageCause.DROWNING)) playerDeath(p, DeathCause.DROWNED);
+                if (e.getCause().equals(EntityDamageEvent.DamageCause.DROWNING)) {
+                    if (p == murderer) {
+                        playerDeath(p, DeathCause.DROWNED);
+                        MurderHandler.stopGame(CURRENTMAP, true, MurderHandler.WinType.MURDER_DIED, DeathCause.DROWNED);
+                    } else playerDeath(p, DeathCause.DROWNED);
+                }
             }
         } catch (Exception exception) {
             printException(getClassName(), getMethodName(), exception);
@@ -355,77 +368,98 @@ public class EventListener implements Listener {
         }
     }
     public void playerDeath(Player victim, DeathCause deathCause) {
-        MurderHandler.roleType.put(victim, "§7사망");
-        victim.setGameMode(GameMode.SPECTATOR);
-        String subtitle = null;
-        if (deathCause.equals(DeathCause.MURDER_KNIFE)) subtitle = "§e살인자가 당신을 찔렀습니다!";
-        else if (deathCause.equals(DeathCause.MURDER_THROW)) subtitle = "§e살인자가 칼을 당신에게 던졌습니다";
-        else if (deathCause.equals(DeathCause.MURDER_SNIPE)) subtitle = "§e살인자가 쏜 활에 맞았습니다!";
-        else if (deathCause.equals(DeathCause.INNOCENT_SNIPE)) subtitle = "§e시민이 쏜 활에 맞았습니다!";
-        else if (deathCause.equals(DeathCause.INNOCENT_SHOOT)) subtitle = "§e당신은 시민을 쐈습니다!";
-        else if (deathCause.equals(DeathCause.DROWNED)) subtitle = "§e당신은 익사했습니다!";
-        else if (deathCause.equals(DeathCause.PORTAL)) subtitle = "§e당신은 포탈에 빠졌습니다!";
-        victim.sendTitle("§c죽었습니다!", subtitle, 0, 100, 20);
-        victim.sendMessage(INDEX + "§c죽었습니다! §e이제부터 관전자 상태입니다.");
-        victim.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 60, 0), true);
-        victim.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 0), true);
-        victim.setAllowFlight(true);
-        victim.getInventory().clear();
-        for (Player p : Bukkit.getOnlinePlayers()) p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_HURT, SoundCategory.MASTER, 100F, 1F);
-        MurderHandler.innocentAlive--;
-        MurderHandler.murderKills++;
-        int i1 = 0; int i2 = 0;
-        final float yaw = victim.getLocation().getYaw();
-        if (yaw >= -45 && yaw < 45) {
-            i1 = 104; i2 = 175;
-        } else if (yaw >= 45 && yaw < 135) {
-            i1 = 105; i2 = 176;
-        } else if ((yaw >= 135 && yaw <= 180) || (yaw >= -180 && yaw < -135)) {
-            i1 = 104; i2 = 177;
-        } else if (yaw >= -135 && yaw < -45) {
-            i1 = 103; i2 = 176;
-        } if (i1 == 0) {
-            double r = Math.random();
-            if (r <= 0.25) {
-                i1 = 104; i2 = 175;
-            } else if (r <= 0.5) {
-                i1 = 105; i2 = 176;
-            } else if (r <= 0.75) {
-                i1 = 104; i2 = 177;
-            } else {
-                i1 = 103; i2 = 176;
+        try {
+            MurderHandler.roleType.put(victim, "§7사망");
+            victim.setGameMode(GameMode.SPECTATOR);
+            String subtitle = null;
+            if (victim != murderer) {
+                if (deathCause.equals(DeathCause.MURDER_KNIFE)) subtitle = "§e살인자가 당신을 찔렀습니다!";
+                else if (deathCause.equals(DeathCause.MURDER_THROW)) subtitle = "§e살인자가 칼을 당신에게 던졌습니다";
+                else if (deathCause.equals(DeathCause.MURDER_SNIPE)) subtitle = "§e살인자가 쏜 활에 맞았습니다!";
+                else if (deathCause.equals(DeathCause.INNOCENT_SNIPE)) subtitle = "§e시민이 쏜 활에 맞았습니다!";
+                else if (deathCause.equals(DeathCause.INNOCENT_SHOOT)) subtitle = "§e당신은 시민을 쐈습니다!";
+                else if (deathCause.equals(DeathCause.DROWNED)) subtitle = "§e당신은 익사했습니다!";
+                else if (deathCause.equals(DeathCause.PORTAL)) subtitle = "§e당신은 포탈에 빠졌습니다!";
+                victim.sendTitle("§c죽었습니다!", subtitle, 0, 100, 20);
+                victim.sendMessage(INDEX + "§c죽었습니다! §e이제부터 관전자 상태입니다.");
+                MurderHandler.innocentAlive--;
+                MurderHandler.murderKills++;
             }
-        } final int x = i1; final int z = i2;
-        Location l = victim.getLocation();
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            CraftPlayer c = (CraftPlayer) victim;
-            Property property = c.getProfile().getProperties().get("textures").iterator().next();
-            MinecraftServer server = ((CraftServer) Bukkit.getServer()).getServer();
-            WorldServer world = ((CraftWorld) Bukkit.getWorlds().get(0)).getHandle();
-            EntityPlayer npc = new EntityPlayer(server, world, new GameProfile(UUID.randomUUID(), ""), new PlayerInteractManager(world));
-            ScoreboardTeam team = new ScoreboardTeam(((CraftScoreboard) Bukkit.getScoreboardManager().getMainScoreboard()).getHandle(), victim.getName());
-            team.setNameTagVisibility(ScoreboardTeamBase.EnumNameTagVisibility.NEVER);
-            team.setCollisionRule(ScoreboardTeamBase.EnumTeamPush.NEVER);
-            npc.getProfile().getProperties().removeAll("textures");
-            npc.getProfile().getProperties().put("textures", new Property("textures", property.getValue(), property.getSignature()));
-            npc.getDataWatcher().set(new DataWatcherObject<>(13, DataWatcherRegistry.a), (byte) 0xFF);
-            npc.setLocation(l.getX(), l.getY(), l.getZ(), 0F, 0F);
-            summonedNpcsId.add(npc.getBukkitEntity().getEntityId());
-            PlayerConnection connection = ((CraftPlayer) player).getHandle().playerConnection;
-            connection.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, npc));
-            connection.sendPacket(new PacketPlayOutNamedEntitySpawn(npc));
-            Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getPlugin(Main.class), () -> {
-                connection.sendPacket(new PacketPlayOutEntityMetadata(npc.getId(), npc.getDataWatcher(), true));
-                connection.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, npc));
-                connection.sendPacket(new PacketPlayOutEntityHeadRotation(npc, (byte) 64));
-                connection.sendPacket(new PacketPlayOutBlockChange(npc.world, new BlockPosition(npc.locX, npc.locY, npc.locZ)));
-                connection.sendPacket(new PacketPlayOutBed(npc, new BlockPosition(x, 79, z)));
-                connection.sendPacket(new PacketPlayOutScoreboardTeam(team, 1));
-                connection.sendPacket(new PacketPlayOutScoreboardTeam(team, 0));
-                connection.sendPacket(new PacketPlayOutScoreboardTeam(team, Collections.singletonList(npc.getName()), 3));
-                npc.teleportTo(new Location(victim.getWorld(), l.getX(), l.getY(), l.getZ(), 90F, 0F), false);
-                connection.sendPacket(new PacketPlayOutEntityTeleport(npc));
-            }, 1L);
-        } if (MurderHandler.innocentAlive == 0) MurderHandler.stopGame(CURRENTMAP, false);
+            for (Player p : Bukkit.getOnlinePlayers())
+                p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_HURT, SoundCategory.MASTER, 100F, 1F);
+            victim.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 60, 0), true);
+            victim.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 0), true);
+            victim.setAllowFlight(true);
+            victim.getInventory().clear();
+            int i1 = 0;
+            int i2 = 0;
+            final float yaw = victim.getLocation().getYaw();
+            if (yaw >= -45 && yaw < 45) {
+                i1 = 104;
+                i2 = 175;
+            } else if (yaw >= 45 && yaw < 135) {
+                i1 = 105;
+                i2 = 176;
+            } else if ((yaw >= 135 && yaw <= 180) || (yaw >= -180 && yaw < -135)) {
+                i1 = 104;
+                i2 = 177;
+            } else if (yaw >= -135 && yaw < -45) {
+                i1 = 103;
+                i2 = 176;
+            }
+            if (i1 == 0) {
+                double r = Math.random();
+                if (r <= 0.25) {
+                    i1 = 104;
+                    i2 = 175;
+                } else if (r <= 0.5) {
+                    i1 = 105;
+                    i2 = 176;
+                } else if (r <= 0.75) {
+                    i1 = 104;
+                    i2 = 177;
+                } else {
+                    i1 = 103;
+                    i2 = 176;
+                }
+            }
+            final int x = i1;
+            final int z = i2;
+            Location l = victim.getLocation();
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                CraftPlayer c = (CraftPlayer) victim;
+                Property property = c.getProfile().getProperties().get("textures").iterator().next();
+                MinecraftServer server = ((CraftServer) Bukkit.getServer()).getServer();
+                WorldServer world = ((CraftWorld) Bukkit.getWorlds().get(0)).getHandle();
+                EntityPlayer npc = new EntityPlayer(server, world, new GameProfile(UUID.randomUUID(), ""), new PlayerInteractManager(world));
+                ScoreboardTeam team = new ScoreboardTeam(((CraftScoreboard) Bukkit.getScoreboardManager().getMainScoreboard()).getHandle(), victim.getName());
+                team.setNameTagVisibility(ScoreboardTeamBase.EnumNameTagVisibility.NEVER);
+                team.setCollisionRule(ScoreboardTeamBase.EnumTeamPush.NEVER);
+                npc.getProfile().getProperties().removeAll("textures");
+                npc.getProfile().getProperties().put("textures", new Property("textures", property.getValue(), property.getSignature()));
+                npc.getDataWatcher().set(new DataWatcherObject<>(13, DataWatcherRegistry.a), (byte) 0xFF);
+                npc.setLocation(l.getX(), l.getY(), l.getZ(), 0F, 0F);
+                summonedNpcsId.add(npc.getBukkitEntity().getEntityId());
+                PlayerConnection connection = ((CraftPlayer) player).getHandle().playerConnection;
+                connection.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, npc));
+                connection.sendPacket(new PacketPlayOutNamedEntitySpawn(npc));
+                Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getPlugin(Main.class), () -> {
+                    connection.sendPacket(new PacketPlayOutEntityMetadata(npc.getId(), npc.getDataWatcher(), true));
+                    connection.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, npc));
+                    connection.sendPacket(new PacketPlayOutEntityHeadRotation(npc, (byte) 64));
+                    connection.sendPacket(new PacketPlayOutBlockChange(npc.world, new BlockPosition(npc.locX, npc.locY, npc.locZ)));
+                    connection.sendPacket(new PacketPlayOutBed(npc, new BlockPosition(x, 79, z)));
+                    connection.sendPacket(new PacketPlayOutScoreboardTeam(team, 1));
+                    connection.sendPacket(new PacketPlayOutScoreboardTeam(team, 0));
+                    connection.sendPacket(new PacketPlayOutScoreboardTeam(team, Collections.singletonList(npc.getName()), 3));
+                    npc.teleportTo(new Location(victim.getWorld(), l.getX(), l.getY(), l.getZ(), 90F, 0F), false);
+                    connection.sendPacket(new PacketPlayOutEntityTeleport(npc));
+                }, 1L);
+            }
+            if (MurderHandler.innocentAlive == 0)
+                MurderHandler.stopGame(CURRENTMAP, false, MurderHandler.WinType.INNOCENT_ALL_DIED, null);
+        } catch (Exception exception) {
+            printException(getClassName(), getMethodName(), exception);
+        }
     }
 }

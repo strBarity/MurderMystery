@@ -48,7 +48,7 @@ public class CountdownTimer implements Runnable {
                 gameCountdownSec = 59L;
                 gameCountdownMin--;
             } else if (gameCountdownSec > 0L) gameCountdownSec--;
-            if (gameCountdownSec == 0L && gameCountdownMin == 0L) MurderHandler.stopGame(Main.CURRENTMAP, true);
+            if (gameCountdownSec == 0L && gameCountdownMin == 0L) MurderHandler.stopGame(Main.CURRENTMAP, true, MurderHandler.WinType.TIMED_OUT, null);
         } else {
             gameCountdownSec = 30L;
             gameCountdownMin = 4L;

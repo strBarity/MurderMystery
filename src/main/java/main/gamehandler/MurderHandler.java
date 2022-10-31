@@ -5,10 +5,10 @@ import main.datahandler.SpawnLocationData;
 import main.eventhandler.EventListener;
 import main.timerhandler.CountdownTimer;
 import net.minecraft.server.v1_12_R1.*;
-import org.bukkit.*;
 import org.bukkit.Material;
 import org.bukkit.SoundCategory;
 import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_12_R1.scoreboard.CraftScoreboard;
 import org.bukkit.entity.Player;
@@ -18,6 +18,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.MaterialData;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -25,12 +26,11 @@ import static main.Main.*;
 
 public class MurderHandler {
     public enum BowType { DectectiveAlive, BowDrop, BowNotDrop }
+    public enum WinType { INNOCENT_ALL_DIED, MURDER_DIED, TIMED_OUT, STOPPED }
     public static Player murderer = null;
     public static Player detective = null;
     public static String heroName = null;
-    //public static int bowType = 0;
     public static BowType bowType = BowType.DectectiveAlive;
-    // bowType = 0: 탐정 생존, 1: 활 떨어짐, 2: 활 떨어지지 않음
     public static int innocentAlive = 0;
     public static int murderKills = 0;
     public static boolean gameStarted = false;
@@ -39,6 +39,7 @@ public class MurderHandler {
     public static void startGame(@NotNull World w) {
         try {
             if (Bukkit.getOnlinePlayers().size() < 2) throw new RuntimeException("플레이어 수가 너무 적습니다");
+            else if (SpawnLocationData.getSpawnLocation(Main.CURRENTMAP.getName()).isEmpty()) throw new RuntimeException("저장된 스폰 위치가 존재하지 않습니다");
             gameStarted = true;
             innocentAlive = Bukkit.getOnlinePlayers().size() - 1;
             for (int z = 166; z <= 187; z++)
@@ -55,7 +56,6 @@ public class MurderHandler {
                 for (int x = 98; x <= 99; x++) w.getBlockAt(x, 97, z).setType(Material.AIR);
             for (int z = 174; z <= 178; z++)
                 for (int y = 90; y <= 95; y++) w.getBlockAt(96, y, z).setType(Material.AIR);
-            if (SpawnLocationData.getSpawnLocation(Main.CURRENTMAP.getName()).isEmpty()) throw new RuntimeException("저장된 스폰 위치가 존재하지 않습니다");
             Location[] locations = new Location[SpawnLocationData.getSpawnLocation(Main.CURRENTMAP.getName()).size()];
             int l=0;
             for (String s : SpawnLocationData.getSpawnLocation(Main.CURRENTMAP.getName())) {
@@ -145,7 +145,7 @@ public class MurderHandler {
             printException(getClassName(), getMethodName(), e);
         }
     }
-    public static void stopGame(@NotNull World w, @NotNull Boolean innocentWin) {
+    public static void stopGame(@NotNull World w, @NotNull Boolean innocentWin, @NotNull WinType winType, @Nullable EventListener.DeathCause murderDeathCause) {
         try {
             gameStarted = false;
             for (Location l : savedGoldBlock) w.getBlockAt(l).setType(Material.GOLD_BLOCK);
@@ -163,8 +163,12 @@ public class MurderHandler {
             if (innocentWin) {
                 Bukkit.broadcastMessage("\n                                   §f§l승자: §a플레이어");
                 for (Player p : Bukkit.getOnlinePlayers()) {
-                    if (p == murderer) p.sendTitle("§c패배했습니다!", "§e시민이 당신을 쐈습니다!", 0, 200, 0);
-                    else p.sendTitle("§a승리했습니다!", "§e살인자가 멈췄습니다!", 0, 200, 0);
+                    if (p == murderer) {
+                        if (winType.equals(WinType.MURDER_DIED)) p.sendTitle("§c패배했습니다!", "§e당신은 사망했습니다!", 0, 200, 0);
+                        else if (winType.equals(WinType.TIMED_OUT)) p.sendTitle("§c패배했습니다!", "§e시간이 다 되었습니다!", 0, 200, 0);
+                    } else {
+                        p.sendTitle("§a승리했습니다!", "§e살인자가 멈췄습니다!", 0, 200, 0);
+                    }
                 }
             } else {
                 Bukkit.broadcastMessage("\n                                   §f§l승자: §c살인자");
