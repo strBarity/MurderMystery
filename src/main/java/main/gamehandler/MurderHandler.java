@@ -4,7 +4,13 @@ import main.Main;
 import main.datahandler.SpawnLocationData;
 import main.eventhandler.EventListener;
 import main.timerhandler.CountdownTimer;
+import net.minecraft.server.v1_12_R1.*;
 import org.bukkit.*;
+import org.bukkit.Material;
+import org.bukkit.SoundCategory;
+import org.bukkit.World;
+import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_12_R1.scoreboard.CraftScoreboard;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -64,7 +70,17 @@ public class MurderHandler {
                 locations[r] = tmp;
             } int n = 0;
             Player[] players = new Player[Bukkit.getOnlinePlayers().size()];
+            ScoreboardTeam team = new ScoreboardTeam(((CraftScoreboard) Bukkit.getScoreboardManager().getMainScoreboard()).getHandle(), "");
+            team.setCollisionRule(ScoreboardTeamBase.EnumTeamPush.NEVER);
+            team.setNameTagVisibility(ScoreboardTeamBase.EnumNameTagVisibility.NEVER);
+            team.setCanSeeFriendlyInvisibles(false);
+            ArrayList<String> playerToAdd = new ArrayList<>();
+            for (Player p : Bukkit.getOnlinePlayers()) playerToAdd.add(p.getName());
             for (Player p : Bukkit.getOnlinePlayers()) {
+                PlayerConnection connection = ((CraftPlayer) p).getHandle().playerConnection;
+                connection.sendPacket(new PacketPlayOutScoreboardTeam(team, 1));
+                connection.sendPacket(new PacketPlayOutScoreboardTeam(team, 0));
+                connection.sendPacket(new PacketPlayOutScoreboardTeam(team, playerToAdd, 3));
                 p.removePotionEffect(PotionEffectType.INVISIBILITY);
                 p.getInventory().clear();
                 players[n] = p;
@@ -134,7 +150,7 @@ public class MurderHandler {
             for (Location l : savedGoldBlock) w.getBlockAt(l).setType(Material.GOLD_BLOCK);
             for (int x = 107; x <= 117; x++)
                 for (int y = 88; y <= 95; y++) w.getBlockAt(x, y, 196).setType(Material.IRON_FENCE);
-            for (int x = 107; x <= 117; x++)
+            for (int x = 107; x <= 117; x++) 
                 for (int y = 88; y <= 95; y++) w.getBlockAt(x, y, 156).setType(Material.IRON_FENCE);
             for (int z = 175; z <= 177; z++)
                 for (int x = 98; x <= 99; x++) w.getBlockAt(x, 97, z).setType(Material.EMERALD_BLOCK);
@@ -143,9 +159,19 @@ public class MurderHandler {
             w.getBlockAt(98, 98, 176).setType(Material.CAKE_BLOCK);
             String boarder = "§a--------------------------------------------------------------------------------";
             Bukkit.broadcastMessage(boarder + "\n                                   §f§l머더 미스터리");
-            if (innocentWin) Bukkit.broadcastMessage("\n                                   §f§l승자: §a플레이어");
-            else Bukkit.broadcastMessage("\n                                   §f§l승자: §c살인자");
-            if (bowType == BowType.DectectiveAlive) Bukkit.broadcastMessage("\n                                    §7탐정: " + EventListener.rankColor.get(detective) + detective.getName());
+            if (innocentWin) {
+                Bukkit.broadcastMessage("\n                                   §f§l승자: §a플레이어");
+                for (Player p : Bukkit.getOnlinePlayers()) {
+                    if (p == murderer) p.sendTitle("§c패배했습니다!", "§e시민이 당신을 쐈습니다!", 0, 200, 0);
+                    else p.sendTitle("§a승리했습니다!", "§e살인자가 멈췄습니다!", 0, 200, 0);
+                }
+            } else {
+                Bukkit.broadcastMessage("\n                                   §f§l승자: §c살인자");
+                for (Player p : Bukkit.getOnlinePlayers()) {
+                    if (p == murderer) p.sendTitle("§a승리했습니다!", "§e모든 플레이어를 처치했습니다!", 0, 200, 0);
+                    else p.sendTitle("§c패배했습니다!", "§e모든 시민이 사망했습니다!", 0, 200, 0);
+                }
+            } if (bowType == BowType.DectectiveAlive) Bukkit.broadcastMessage("\n                                    §7탐정: " + EventListener.rankColor.get(detective) + detective.getName());
             else Bukkit.broadcastMessage("\n                                    §7탐정: " + EventListener.rankColor.get(detective) + "§m" + detective.getName());
             if (innocentWin) Bukkit.broadcastMessage("                                §7살인자: " + EventListener.rankColor.get(murderer) + murderer.getName() + "§7 (§6" + murderKills + "§7 킬)");
             else Bukkit.broadcastMessage("                                     §7살인자: " + EventListener.rankColor.get(murderer) + "§m" + murderer.getName() + "§7 (§6" + murderKills + "§7 킬)");
@@ -156,6 +182,7 @@ public class MurderHandler {
                 murderer = null;
                 detective = null;
                 for (Player p : Bukkit.getOnlinePlayers()) {
+                    for (int i : EventListener.summonedNpcsId) ((CraftPlayer) p).getHandle().playerConnection.sendPacket(new PacketPlayOutEntityDestroy(i));
                     roleType.remove(p);
                     p.getInventory().clear();
                     p.setAllowFlight(false);

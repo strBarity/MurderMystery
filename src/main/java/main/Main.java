@@ -8,11 +8,10 @@ import main.timerhandler.CMDCooldownTimer;
 import main.timerhandler.CountdownTimer;
 import main.timerhandler.ExitTimer;
 import main.timerhandler.ItemCooldownTimer;
-import net.minecraft.server.v1_12_R1.PacketPlayOutScoreboardTeam;
-import net.minecraft.server.v1_12_R1.PlayerConnection;
-import net.minecraft.server.v1_12_R1.ScoreboardTeam;
-import net.minecraft.server.v1_12_R1.ScoreboardTeamBase;
+import net.minecraft.server.v1_12_R1.*;
 import org.bukkit.*;
+import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_12_R1.scoreboard.CraftScoreboard;
 import org.bukkit.entity.Player;
@@ -90,7 +89,9 @@ public final class Main extends JavaPlugin {
             for (int z = 174; z <= 178; z++)
                 for (int y = 90; y <= 95; y++) Main.CURRENTMAP.getBlockAt(96, y, z).setType(Material.IRON_FENCE);
             Main.CURRENTMAP.getBlockAt(98, 98, 176).setType(Material.CAKE_BLOCK);
-        }
+        } if (!EventListener.summonedNpcsId.isEmpty())
+            for (Player p : Bukkit.getOnlinePlayers())
+                for (int i : EventListener.summonedNpcsId) ((CraftPlayer) p).getHandle().playerConnection.sendPacket(new PacketPlayOutEntityDestroy(i));
         Bukkit.getConsoleSender().sendMessage(Main.INDEX + "§c플러그인이 비활성화되었습니다."); /* 플러그인 비활성화 메시지 전송 */
     }
     public static String getClassName() {
