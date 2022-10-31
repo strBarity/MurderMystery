@@ -9,17 +9,14 @@ public class TranslateHandler {
     public static Map<String, String> KoreanMessage = new HashMap<>();
     public static Map<String, String> EnglishMessage = new HashMap<>();
 
-
     public static void initialize() {
-        KoreanMessage.put("murder.key.onDeath","얻'얻'습니다");
-        EnglishMessage.put("murder.key.onDeath","g'g't");
+        setString("murder.key.ggt", "얻'얻'습니다", "g'g't");
     }
 
     public static void setString(String key, String kr, String en) {
         KoreanMessage.put(key, kr);
         EnglishMessage.put(key, en);
     }
-
 
     public static String getString(String key, MurderLanguage lang) {
         switch (lang) {
