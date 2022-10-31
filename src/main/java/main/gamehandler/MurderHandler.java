@@ -86,7 +86,8 @@ public class MurderHandler {
                 players[n] = p;
                 p.teleport(locations[n % locations.length]);
                 n++;
-            } for (int i = 0; i < players.length; i++) {
+            } int nn = random.nextInt(3);
+            for (int i = 0; i < players.length + nn; i++) {
                 int r = random.nextInt(players.length - 1);
                 Player tmp = players[0];
                 players[0] = players[r];
