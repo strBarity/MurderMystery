@@ -4,7 +4,7 @@ import main.cmdhandler.CMDHandler;
 import main.datahandler.SpawnLocationData;
 import main.eventhandler.EventListener;
 import main.gamehandler.MurderHandler;
-import main.gamehandler.StringHandler;
+import main.stringhandler.TranslateHandler;
 import main.timerhandler.CMDCooldownTimer;
 import main.timerhandler.CountdownTimer;
 import main.timerhandler.ExitTimer;
@@ -31,7 +31,7 @@ public final class Main extends JavaPlugin {
     public void onEnable() {
         try {
             SpawnLocationData.loadData();
-            StringHandler.initialize();
+            TranslateHandler.initialize();
             Bukkit.getPluginManager().registerEvents(new EventListener(), this); /* 이벤트 리스너 등록 */
             Bukkit.getConsoleSender().sendMessage(Main.INDEX + "§a플러그인이 활성화되었습니다."); /* 플러그인 활성화 메시지 전송 */
             Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new CountdownTimer(), 0L, 20L); /* 타이머 등록 & 시작 */
