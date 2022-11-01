@@ -24,36 +24,48 @@ public class TextFormatter {
     }
 
     public String string;
-    StringColor preColor;
-    StringColor postColor;
-    StringStyle preStyle;
-    StringStyle postStyle;
-    boolean usePreColor = false;
-    boolean usePostColor = false;
-    boolean usePreStyle = false;
-    boolean usePostStyle = false;
+    private StringColor preColor;
+    private StringColor postColor;
+    private StringStyle preStyle;
+    private StringStyle postStyle;
+    private boolean usePreColor = false;
+    private boolean usePostColor = false;
+    private boolean usePreStyle = false;
+    private boolean usePostStyle = false;
 
-    public TextFormatter(String string)
-    {
+    public StringColor getPreColor() {
+        return preColor;
+    }
+
+    public StringColor getPostColor() {
+        return postColor;
+    }
+
+    public StringStyle getPreStyle() {
+        return preStyle;
+    }
+
+    public StringStyle getPostStyle() {
+        return postStyle;
+    }
+
+    public TextFormatter(String string) {
         this.string = string;
     }
 
-    public TextFormatter(String string, StringColor preColor)
-    {
+    public TextFormatter(String string, StringColor preColor) {
         this.string = string;
         this.preColor = preColor;
         usePreColor = true;
     }
 
-    public TextFormatter(String string, StringStyle preStyle)
-    {
+    public TextFormatter(String string, StringStyle preStyle) {
         this.string = string;
         this.preStyle = preStyle;
         usePreStyle = true;
     }
 
-    public TextFormatter(String string, StringColor preColor, StringStyle preStyle)
-    {
+    public TextFormatter(String string, StringColor preColor, StringStyle preStyle) {
         this.string = string;
         this.preColor = preColor;
         this.preStyle = preStyle;
@@ -61,8 +73,7 @@ public class TextFormatter {
         usePreStyle = true;
     }
 
-    public TextFormatter(String string, StringColor preColor, StringStyle preStyle, StringColor postColor, StringStyle postStyle)
-    {
+    public TextFormatter(String string, StringColor preColor, StringStyle preStyle, StringColor postColor, StringStyle postStyle) {
         this.string = string;
         this.preColor = preColor;
         this.preStyle = preStyle;

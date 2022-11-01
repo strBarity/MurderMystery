@@ -13,7 +13,7 @@ public class TranslateHandler {
     public static Map<String, String> EnglishMessage = new HashMap<>();
 
     public static void initialize() {
-        setString("murder.key.ggt", "얻'얻'습니다", "g'g't");
+        setString("murder.key.asdf", "ㅁㄴㅇㄹ", "asdf");
     }
 
     public static void setString(String key, String kr, String en) {
@@ -26,22 +26,29 @@ public class TranslateHandler {
             case Korean:
                 try {
                     return KoreanMessage.get(key);
-                }
-                catch(Exception ex) {
+                } catch (Exception ex) {
                     return "Missing Key(KR)" + key;
                 }
             default:
                 try {
                     return EnglishMessage.get(key);
-                }
-                catch(Exception ex) {
+                } catch (Exception ex) {
                     return "Missing Key(EN)" + key;
                 }
         }
     }
 
-    public static String getString(String key, Player p)
-    {
+    public static String getString(String key, Player p) {
         return getString(key, UserLanguageData.getUserLanguage(p));
+    }
+
+    public static TextFormatter getText(TextFormatter text, MurderLanguage lang) {
+        TextFormatter formatter = new TextFormatter("", text.getPreColor(), text.getPreStyle(), text.getPostColor(), text.getPostStyle());
+        formatter.string = getString(text.string, lang);
+        return formatter;
+    }
+
+    public static TextFormatter getText(TextFormatter text, Player p) {
+        return getText(text, UserLanguageData.getUserLanguage(p));
     }
 }
