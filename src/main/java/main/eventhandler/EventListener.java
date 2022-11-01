@@ -233,10 +233,8 @@ public class EventListener implements Listener {
                     boolean notRemoved = true;
                     for (int x = p.getLocation().getBlockX() - 2; x <= p.getLocation().getBlockX() + 2; x++) for (int y = p.getLocation().getBlockY() - 2; y <= p.getLocation().getBlockY() + 2; y++) for (int z = p.getLocation().getBlockZ() - 2; z <= p.getLocation().getBlockZ() + 2; z++) {
                         for (String s : SpawnLocationData.getSpawnLocation(p.getWorld().getName())) {
-                            final String[] parts = s.split(",");
-                            final int x2 = Integer.parseInt(parts[0]);
-                            final int y2 = Integer.parseInt(parts[1]);
-                            final int z2 = Integer.parseInt(parts[2]);
+                            int[] i = SpawnLocationData.toSplitCoord(s);
+                            int x2 = i[0]; int y2 = i[1]; int z2 = i[2];
                             if (x == x2 && y == y2 && z == z2) {
                                 notRemoved = false;
                                 SpawnLocationData.removeSpawnLocation(p.getWorld().getName(), new Location(p.getWorld(), x2, y2, z2));
