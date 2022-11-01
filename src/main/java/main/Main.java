@@ -2,6 +2,7 @@ package main;
 
 import main.cmdhandler.CMDHandler;
 import main.datahandler.SpawnLocationData;
+import main.datahandler.UserLanguageData;
 import main.eventhandler.EventListener;
 import main.gamehandler.MurderHandler;
 import main.stringhandler.TranslateHandler;
@@ -31,6 +32,7 @@ public final class Main extends JavaPlugin {
     public void onEnable() {
         try {
             SpawnLocationData.loadData();
+            UserLanguageData.loadData();
             TranslateHandler.initialize();
             Bukkit.getPluginManager().registerEvents(new EventListener(), this); /* 이벤트 리스너 등록 */
             Bukkit.getConsoleSender().sendMessage(Main.INDEX + "§a플러그인이 활성화되었습니다."); /* 플러그인 활성화 메시지 전송 */
