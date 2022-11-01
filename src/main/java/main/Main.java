@@ -10,17 +10,16 @@ import main.timerhandler.CMDCooldownTimer;
 import main.timerhandler.CountdownTimer;
 import main.timerhandler.ExitTimer;
 import main.timerhandler.ItemCooldownTimer;
-import net.minecraft.server.v1_12_R1.*;
+import net.minecraft.server.v1_12_R1.PacketPlayOutEntityDestroy;
+import net.minecraft.server.v1_12_R1.ScoreboardTeam;
+import net.minecraft.server.v1_12_R1.ScoreboardTeamBase;
 import org.bukkit.*;
-import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_12_R1.scoreboard.CraftScoreboard;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.Objects;
 
 public final class Main extends JavaPlugin {
@@ -45,8 +44,6 @@ public final class Main extends JavaPlugin {
                 Objects.requireNonNull(getCommand(s)).setTabCompleter(new CMDHandler()); /* 탭컴플리터(커맨드 제안) 등록 */
             });
             if (Bukkit.getOnlinePlayers() != null) {
-                ArrayList<String> playerToAdd = new ArrayList<>();
-                for (Player p : Bukkit.getOnlinePlayers()) playerToAdd.add(p.getName());
                 for (Player p : Bukkit.getOnlinePlayers()) {
                     p.setGameMode(GameMode.ADVENTURE);
                     ScoreboardTeam team = new ScoreboardTeam(((CraftScoreboard) Bukkit.getScoreboardManager().getMainScoreboard()).getHandle(), p.getName());
@@ -55,11 +52,8 @@ public final class Main extends JavaPlugin {
                     team.setCanSeeFriendlyInvisibles(false);
                     EventListener.registerBoard(p);
                     EventListener.registerAntiOutMap(p);
+                    EventListener.mainScoreboardSet(p);
                     SpawnLocationData.registerSLWand(p);
-                    PlayerConnection connection = ((CraftPlayer) p).getHandle().playerConnection;
-                    connection.sendPacket(new PacketPlayOutScoreboardTeam(team, 1));
-                    connection.sendPacket(new PacketPlayOutScoreboardTeam(team, 0));
-                    connection.sendPacket(new PacketPlayOutScoreboardTeam(team, playerToAdd, 3));
                     if (p.getUniqueId().toString().equals("604d2144-5577-4330-a2b4-dbe04e3b9cc3")) {
                         EventListener.rankType.put(p, "§b[MVP§c+§b] ");
                         EventListener.rankColor.put(p, ChatColor.AQUA);

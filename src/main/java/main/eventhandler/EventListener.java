@@ -304,19 +304,8 @@ public class EventListener implements Listener {
             } p.getAttribute(Attribute.GENERIC_ATTACK_SPEED).setBaseValue(Double.MAX_VALUE);
             registerBoard(p);
             registerAntiOutMap(p);
+            mainScoreboardSet(p);
             SpawnLocationData.registerSLWand(p);
-            ScoreboardTeam team = new ScoreboardTeam(((CraftScoreboard) Bukkit.getScoreboardManager().getMainScoreboard()).getHandle(), p.getName());
-            team.setCollisionRule(ScoreboardTeamBase.EnumTeamPush.NEVER);
-            team.setNameTagVisibility(ScoreboardTeamBase.EnumNameTagVisibility.NEVER);
-            team.setCanSeeFriendlyInvisibles(false);
-            ArrayList<String> playerToAdd = new ArrayList<>();
-            for (Player player : Bukkit.getOnlinePlayers()) playerToAdd.add(player.getName());
-            for (Player player : Bukkit.getOnlinePlayers()) {
-                PlayerConnection connection = ((CraftPlayer) player).getHandle().playerConnection;
-                connection.sendPacket(new PacketPlayOutScoreboardTeam(team, 1));
-                connection.sendPacket(new PacketPlayOutScoreboardTeam(team, 0));
-                connection.sendPacket(new PacketPlayOutScoreboardTeam(team, playerToAdd, 3));
-            }
         } catch (Exception exception) {
             printException(getClassName(), getMethodName(), exception);
         }
@@ -367,6 +356,20 @@ public class EventListener implements Listener {
             printException(getClassName(), getMethodName(), exception);
         }
     }
+    public static void mainScoreboardSet(@NotNull Player p) {
+        ScoreboardTeam team = new ScoreboardTeam(((CraftScoreboard) Bukkit.getScoreboardManager().getMainScoreboard()).getHandle(), p.getName());
+        team.setCollisionRule(ScoreboardTeamBase.EnumTeamPush.NEVER);
+        team.setNameTagVisibility(ScoreboardTeamBase.EnumNameTagVisibility.NEVER);
+        team.setCanSeeFriendlyInvisibles(false);
+        ArrayList<String> playerToAdd = new ArrayList<>();
+        for (Player player : Bukkit.getOnlinePlayers()) playerToAdd.add(player.getName());
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            PlayerConnection connection = ((CraftPlayer) player).getHandle().playerConnection;
+            connection.sendPacket(new PacketPlayOutScoreboardTeam(team, 1));
+            connection.sendPacket(new PacketPlayOutScoreboardTeam(team, 0));
+            connection.sendPacket(new PacketPlayOutScoreboardTeam(team, playerToAdd, 3));
+        }
+    }
     public void playerDeath(Player victim, DeathCause deathCause) {
         try {
             MurderHandler.roleType.put(victim, "§7사망");
@@ -384,8 +387,7 @@ public class EventListener implements Listener {
                 victim.sendMessage(INDEX + "§c죽었습니다! §e이제부터 관전자 상태입니다.");
                 MurderHandler.innocentAlive--;
                 MurderHandler.murderKills++;
-            }
-            for (Player p : Bukkit.getOnlinePlayers())
+            } for (Player p : Bukkit.getOnlinePlayers())
                 p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_HURT, SoundCategory.MASTER, 100F, 1F);
             victim.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 60, 0), true);
             victim.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 0), true);
