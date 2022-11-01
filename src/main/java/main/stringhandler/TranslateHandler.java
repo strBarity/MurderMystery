@@ -1,5 +1,8 @@
 package main.stringhandler;
 
+import main.datahandler.UserLanguageData;
+import org.bukkit.entity.Player;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,5 +38,10 @@ public class TranslateHandler {
                     return "Missing Key(EN)" + key;
                 }
         }
+    }
+
+    public static String getString(String key, Player p)
+    {
+        return getString(key, UserLanguageData.getUserLanguage(p));
     }
 }
