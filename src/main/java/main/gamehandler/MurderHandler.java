@@ -164,7 +164,12 @@ public class MurderHandler {
                 Bukkit.broadcastMessage("\n                                   §f§l승자: §a플레이어");
                 for (Player p : Bukkit.getOnlinePlayers()) {
                     if (p == murderer) {
-                        if (winType.equals(WinType.MURDER_DIED)) p.sendTitle("§c패배했습니다!", "§e당신은 사망했습니다!", 0, 200, 0);
+                        if (winType.equals(WinType.MURDER_DIED)) {
+                            if (murderDeathCause == null) p.sendTitle("§c패배했습니다!", "§e지정되지 않은 사망 사유입니다.", 0, 200, 0);
+                            else if (murderDeathCause.equals(EventListener.DeathCause.INNOCENT_SHOOT)) p.sendTitle("§c패배했습니다!", "§e당신은 사망했습니다!", 0, 200, 0);
+                            else if (murderDeathCause.equals(EventListener.DeathCause.DROWNED)) p.sendTitle("§c패배했습니다!", "§e당신은 익사했습니다!", 0, 200, 0);
+                            else if (murderDeathCause.equals(EventListener.DeathCause.PORTAL)) p.sendTitle("§c패배했습니다!", "§e당신은 포탈에 빠졌습니다!", 0, 200, 0);
+                        }
                         else if (winType.equals(WinType.TIMED_OUT)) p.sendTitle("§c패배했습니다!", "§e시간이 다 되었습니다!", 0, 200, 0);
                     } else {
                         p.sendTitle("§a승리했습니다!", "§e살인자가 멈췄습니다!", 0, 200, 0);
