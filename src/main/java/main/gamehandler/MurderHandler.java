@@ -11,6 +11,7 @@ import org.bukkit.World;
 import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_12_R1.scoreboard.CraftScoreboard;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -206,6 +207,12 @@ public class MurderHandler {
                     i.setItemMeta(im);
                     i.setData(new MaterialData(Material.BED));
                     p.getInventory().setItem(8, i);
+                    if (!EventListener.spinStandId.isEmpty()) {
+                        for (Map.Entry<ArmorStand, Integer> entry : EventListener.spinStandId.entrySet()) {
+                            entry.getKey().remove();
+                            sc.cancelTask(entry.getValue());
+                        }
+                    }
                 }
             }, 200L);
         } catch (Exception e) {

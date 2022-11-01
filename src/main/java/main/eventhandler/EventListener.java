@@ -16,6 +16,7 @@ import org.bukkit.craftbukkit.v1_12_R1.CraftServer;
 import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_12_R1.scoreboard.CraftScoreboard;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -34,6 +35,7 @@ import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Score;
 import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.util.EulerAngle;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDate;
@@ -41,7 +43,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static main.Main.*;
-import static main.gamehandler.MurderHandler.murderer;
+import static main.gamehandler.MurderHandler.*;
 import static main.timerhandler.ItemCooldownTimer.bowCooldown;
 
 public class EventListener implements Listener {
@@ -50,8 +52,16 @@ public class EventListener implements Listener {
     public static final List<Integer> summonedNpcsId = new ArrayList<>();
     public static final HashMap<Player, Integer> boardId = new HashMap<>();
     public static final HashMap<Player, Integer> antiOutMapId = new HashMap<>();
+    public static final HashMap<ArmorStand, Integer> spinStandId = new HashMap<>();
     public static final HashMap<Player, String> rankType = new HashMap<>();
     public static final HashMap<Player, ChatColor> rankColor = new HashMap<>();
+    public static void registerArmorstandSpin(ArmorStand a) {
+        int i = sc.scheduleSyncRepeatingTask(Main.getPlugin(Main.class), () -> {
+            Location l = a.getLocation();
+            a.teleport(new Location(a.getWorld(), l.getX(), l.getY(), l.getZ(), l.getYaw()+7.5F, l.getPitch()));
+        }, 0, 1L);
+        spinStandId.put(a, i);
+    }
     public static void registerAntiOutMap(Player p) {
         int i = s.getScheduler().scheduleSyncRepeatingTask(Main.getPlugin(Main.class), () -> {
             Location l = p.getLocation();
@@ -385,6 +395,20 @@ public class EventListener implements Listener {
                 victim.sendMessage(INDEX + "§c죽었습니다! §e이제부터 관전자 상태입니다.");
                 MurderHandler.innocentAlive--;
                 MurderHandler.murderKills++;
+            } if (victim == detective && innocentAlive > 0) {
+                bowType = BowType.BowDrop;
+                Bukkit.broadcastMessage(INDEX + "§6활이 떨어졌습니다! §e활을 찾아 살인자를 처치할 기회를 포착하세요.");
+                for (Player p : Bukkit.getOnlinePlayers()) p.sendTitle("", "§6활이 떨어졌습니다!", 0, 100, 0);
+                Location l = victim.getLocation();
+                ArmorStand a = CURRENTMAP.spawn(new Location(victim.getWorld(), l.getX(), l.getY()+0.5, l.getZ()), ArmorStand.class);
+                a.setGravity(false);
+                a.setCustomNameVisible(false);
+                a.setArms(true);
+                a.setVisible(false);
+                a.setMarker(true);
+                a.setItemInHand(new ItemStack(Material.BOW));
+                a.setRightArmPose(new EulerAngle(45, 0, 0));
+                registerArmorstandSpin(a);
             } for (Player p : Bukkit.getOnlinePlayers())
                 p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_HURT, SoundCategory.MASTER, 100F, 1F);
             victim.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 60, 0), true);
