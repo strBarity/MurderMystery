@@ -17,18 +17,19 @@ public class ItemCooldownTimer implements Runnable {
             for (Map.Entry<Player, Double> entry : bowCooldown.entrySet()) {
                 double v = (double) Math.round(entry.getValue() * 10)/10;
                 bowCooldown.put(entry.getKey(), entry.getValue() - 0.1);
-                if (v >= 4.5) entry.getKey().spigot().sendMessage(ChatMessageType.ACTION_BAR, new ComponentBuilder("§e" + v + "s §8[§a■§c■■■■■■■■■§8]").create());
-                else if (v >= 4.0) entry.getKey().spigot().sendMessage(ChatMessageType.ACTION_BAR, new ComponentBuilder("§e" + v + "s §8[§a■■§c■■■■■■■■§8]").create());
-                else if (v >= 3.5) entry.getKey().spigot().sendMessage(ChatMessageType.ACTION_BAR, new ComponentBuilder("§e" + v + "s §8[§a■■■§c■■■■■■■§8]").create());
-                else if (v >= 3.0) entry.getKey().spigot().sendMessage(ChatMessageType.ACTION_BAR, new ComponentBuilder("§e" + v + "s §8[§a■■■■§c■■■■■■§8]").create());
-                else if (v >= 2.5) entry.getKey().spigot().sendMessage(ChatMessageType.ACTION_BAR, new ComponentBuilder("§e" + v + "s §8[§a■■■■■§c■■■■■§8]").create());
-                else if (v >= 2.0) entry.getKey().spigot().sendMessage(ChatMessageType.ACTION_BAR, new ComponentBuilder("§e" + v + "s §8[§a■■■■■■§c■■■■§8]").create());
-                else if (v >= 1.5) entry.getKey().spigot().sendMessage(ChatMessageType.ACTION_BAR, new ComponentBuilder("§e" + v + "s §8[§a■■■■■■■§c■■■§8]").create());
-                else if (v >= 1.0) entry.getKey().spigot().sendMessage(ChatMessageType.ACTION_BAR, new ComponentBuilder("§e" + v + "s §8[§a■■■■■■■■§c■■§8]").create());
-                else if (v >= 0.5) entry.getKey().spigot().sendMessage(ChatMessageType.ACTION_BAR, new ComponentBuilder("§e" + v + "s §8[§a■■■■■■■■■§c■§8]").create());
-                else entry.getKey().spigot().sendMessage(ChatMessageType.ACTION_BAR, new ComponentBuilder("§e" + v + "s §8[§a■■■■■■■■■■§8]").create());
+                final Player.Spigot s = entry.getKey().spigot();
+                if (v >= 4.5) s.sendMessage(ChatMessageType.ACTION_BAR, new ComponentBuilder("§e" + v + "s §8[§a■§c■■■■■■■■■§8]").create());
+                else if (v >= 4.0) s.sendMessage(ChatMessageType.ACTION_BAR, new ComponentBuilder("§e" + v + "s §8[§a■■§c■■■■■■■■§8]").create());
+                else if (v >= 3.5) s.sendMessage(ChatMessageType.ACTION_BAR, new ComponentBuilder("§e" + v + "s §8[§a■■■§c■■■■■■■§8]").create());
+                else if (v >= 3.0) s.sendMessage(ChatMessageType.ACTION_BAR, new ComponentBuilder("§e" + v + "s §8[§a■■■■§c■■■■■■§8]").create());
+                else if (v >= 2.5) s.sendMessage(ChatMessageType.ACTION_BAR, new ComponentBuilder("§e" + v + "s §8[§a■■■■■§c■■■■■§8]").create());
+                else if (v >= 2.0) s.sendMessage(ChatMessageType.ACTION_BAR, new ComponentBuilder("§e" + v + "s §8[§a■■■■■■§c■■■■§8]").create());
+                else if (v >= 1.5) s.sendMessage(ChatMessageType.ACTION_BAR, new ComponentBuilder("§e" + v + "s §8[§a■■■■■■■§c■■■§8]").create());
+                else if (v >= 1.0) s.sendMessage(ChatMessageType.ACTION_BAR, new ComponentBuilder("§e" + v + "s §8[§a■■■■■■■■§c■■§8]").create());
+                else if (v >= 0.5) s.sendMessage(ChatMessageType.ACTION_BAR, new ComponentBuilder("§e" + v + "s §8[§a■■■■■■■■■§c■§8]").create());
+                else s.sendMessage(ChatMessageType.ACTION_BAR, new ComponentBuilder("§e" + v + "s §8[§a■■■■■■■■■■§8]").create());
                 if (entry.getValue() <= 0) {
-                    entry.getKey().spigot().sendMessage(ChatMessageType.ACTION_BAR, new ComponentBuilder("").create());
+                    s.sendMessage(ChatMessageType.ACTION_BAR, new ComponentBuilder("").create());
                     entry.getKey().getInventory().setItem(9, new ItemStack(Material.ARROW));
                     bowCooldown.remove(entry.getKey());
                 }
