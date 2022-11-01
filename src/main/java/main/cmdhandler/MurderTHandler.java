@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.UUID;
 
+import static main.Main.sc;
 import static main.gamehandler.MurderHandler.gameStarted;
 
 public class MurderTHandler {
@@ -175,7 +176,7 @@ public class MurderTHandler {
                     PlayerConnection connection = ((CraftPlayer) player).getHandle().playerConnection;
                     connection.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, npc));
                     connection.sendPacket(new PacketPlayOutNamedEntitySpawn(npc));
-                    Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getPlugin(Main.class), () -> {
+                    sc.scheduleSyncDelayedTask(Main.getPlugin(Main.class), () -> {
                         connection.sendPacket(new PacketPlayOutEntityMetadata(npc.getId(), npc.getDataWatcher(), true));
                         connection.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, npc));
                         connection.sendPacket(new PacketPlayOutEntityHeadRotation(npc, (byte) 64));
@@ -187,7 +188,7 @@ public class MurderTHandler {
                         npc.teleportTo(new Location(p.getWorld(), l.getX(), l.getY(), l.getZ(), 90F, 0F), false);
                         connection.sendPacket(new PacketPlayOutEntityTeleport(npc));
                     }, 1L);
-                } Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getPlugin(Main.class), () -> p.sendMessage(Main.INDEX + "§bNPC 생성 완료."), 1L);
+                } sc.scheduleSyncDelayedTask(Main.getPlugin(Main.class), () -> p.sendMessage(Main.INDEX + "§bNPC 생성 완료."), 1L);
                 break;
             case "task":
                 if (args[1].equals("cancel")) {

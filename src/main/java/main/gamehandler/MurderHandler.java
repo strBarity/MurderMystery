@@ -110,27 +110,27 @@ public class MurderHandler {
             bowM.setUnbreakable(true);
             bowM.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE);
             bow.setItemMeta(bowM);
-            Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getPlugin(Main.class), () -> {
+            sc.scheduleSyncDelayedTask(Main.getPlugin(Main.class), () -> {
                 Bukkit.broadcastMessage(INDEX + "§e살인자가 §b5§e초 후에 칼을 얻습니다!");
                 for (Player p : Bukkit.getOnlinePlayers()) p.playSound(p.getLocation(), Sound.BLOCK_NOTE_HAT, SoundCategory.MASTER, 100F, 1F);
             }, 100L);
-            Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getPlugin(Main.class), () -> {
+            sc.scheduleSyncDelayedTask(Main.getPlugin(Main.class), () -> {
                 Bukkit.broadcastMessage(INDEX + "§e살인자가 §b4§e초 후에 칼을 얻습니다!");
                 for (Player p : Bukkit.getOnlinePlayers()) p.playSound(p.getLocation(), Sound.BLOCK_NOTE_HAT, SoundCategory.MASTER, 100F, 1F);
             }, 120L);
-            Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getPlugin(Main.class), () -> {
+            sc.scheduleSyncDelayedTask(Main.getPlugin(Main.class), () -> {
                 Bukkit.broadcastMessage(INDEX + "§e살인자가 §b3§e초 후에 칼을 얻습니다!");
                 for (Player p : Bukkit.getOnlinePlayers()) p.playSound(p.getLocation(), Sound.BLOCK_NOTE_HAT, SoundCategory.MASTER, 100F, 1F);
             }, 140L);
-            Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getPlugin(Main.class), () -> {
+            sc.scheduleSyncDelayedTask(Main.getPlugin(Main.class), () -> {
                 Bukkit.broadcastMessage(INDEX + "§e살인자가 §b2§e초 후에 칼을 얻습니다!");
                 for (Player p : Bukkit.getOnlinePlayers()) p.playSound(p.getLocation(), Sound.BLOCK_NOTE_HAT, SoundCategory.MASTER, 100F, 1F);
             }, 160L);
-            Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getPlugin(Main.class), () -> {
+            sc.scheduleSyncDelayedTask(Main.getPlugin(Main.class), () -> {
                 Bukkit.broadcastMessage(INDEX + "§e살인자가 §b1§e초 후에 칼을 얻습니다!");
                 for (Player p : Bukkit.getOnlinePlayers()) p.playSound(p.getLocation(), Sound.BLOCK_NOTE_HAT, SoundCategory.MASTER, 100F, 1F);
             }, 180L);
-            Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getPlugin(Main.class), () -> {
+            sc.scheduleSyncDelayedTask(Main.getPlugin(Main.class), () -> {
                 players[0].getInventory().setItem(1, knife);
                 players[1].getInventory().setItem(1, bow);
                 players[1].getInventory().setItem(9, new ItemStack(Material.ARROW));
@@ -188,7 +188,7 @@ public class MurderHandler {
             if (heroName != null) Bukkit.broadcastMessage("                                    §7영웅: §f제작중");
             Bukkit.broadcastMessage("\n" + boarder);
             CountdownTimer.startCountdown = 70L;
-            Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getPlugin(Main.class), () -> {
+            sc.scheduleSyncDelayedTask(Main.getPlugin(Main.class), () -> {
                 murderer = null;
                 detective = null;
                 for (Player p : Bukkit.getOnlinePlayers()) {

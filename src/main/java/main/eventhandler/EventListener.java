@@ -271,7 +271,7 @@ public class EventListener implements Listener {
                 p.setPlayerListName("§b[MVP§c+§b] " + p.getName() + " ");
                 e.setJoinMessage(Main.INDEX + "§b누군가...?§e가 참여했습니다. (§b" + Bukkit.getOnlinePlayers().size() + "§e/§b32§e)");
                 for (Player o : Bukkit.getOnlinePlayers()) o.playSound(o.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.MASTER, 100, 1);
-                Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getPlugin(Main.class), () -> {
+                sc.scheduleSyncDelayedTask(Main.getPlugin(Main.class), () -> {
                     s.broadcastMessage(Main.INDEX + "§c키가 너무 작아서 이름이 안보여요... 죄송합니다");
                     for (Player o : Bukkit.getOnlinePlayers()) o.playSound(o.getLocation(), Sound.BLOCK_ANVIL_LAND, SoundCategory.MASTER, 100, 1);
                 }, 60L);
@@ -315,9 +315,9 @@ public class EventListener implements Listener {
             Player p = e.getPlayer();
             if (MurderHandler.gameStarted) e.setQuitMessage(null);
             else e.setQuitMessage(Main.INDEX + rankColor.get(p) + p.getName() + "§e님이 나갔습니다! (§b" + (Bukkit.getOnlinePlayers().size() - 1) + "§e/§b32§e)");
-            Bukkit.getScheduler().cancelTask(boardId.get(e.getPlayer()));
-            Bukkit.getScheduler().cancelTask(antiOutMapId.get(e.getPlayer()));
-            Bukkit.getScheduler().cancelTask(SpawnLocationData.slWandId.get(e.getPlayer()));
+            sc.cancelTask(boardId.get(e.getPlayer()));
+            sc.cancelTask(antiOutMapId.get(e.getPlayer()));
+            sc.cancelTask(SpawnLocationData.slWandId.get(e.getPlayer()));
         } catch (Exception exception) {
             printException(getClassName(), getMethodName(), exception);
         }
@@ -445,7 +445,7 @@ public class EventListener implements Listener {
                 PlayerConnection connection = ((CraftPlayer) player).getHandle().playerConnection;
                 connection.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, npc));
                 connection.sendPacket(new PacketPlayOutNamedEntitySpawn(npc));
-                Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getPlugin(Main.class), () -> {
+                sc.scheduleSyncDelayedTask(Main.getPlugin(Main.class), () -> {
                     connection.sendPacket(new PacketPlayOutEntityMetadata(npc.getId(), npc.getDataWatcher(), true));
                     connection.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, npc));
                     connection.sendPacket(new PacketPlayOutEntityHeadRotation(npc, (byte) 64));

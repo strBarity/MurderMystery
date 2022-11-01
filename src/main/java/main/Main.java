@@ -18,6 +18,7 @@ import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_12_R1.scoreboard.CraftScoreboard;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitScheduler;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
@@ -26,6 +27,7 @@ public final class Main extends JavaPlugin {
     public static final World CURRENTMAP = Bukkit.getWorld("archives");
 
     public static final Server s = Bukkit.getServer();
+    public static final BukkitScheduler sc = Bukkit.getScheduler();
     public static final String INDEX = "§f[§cMurder§f] ";
     @Override
     public void onEnable() {
@@ -35,10 +37,10 @@ public final class Main extends JavaPlugin {
             TranslateHandler.initialize();
             Bukkit.getPluginManager().registerEvents(new EventListener(), this); /* 이벤트 리스너 등록 */
             Bukkit.getConsoleSender().sendMessage(Main.INDEX + "§a플러그인이 활성화되었습니다."); /* 플러그인 활성화 메시지 전송 */
-            Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new CountdownTimer(), 0L, 20L); /* 타이머 등록 & 시작 */
-            Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new ExitTimer(), 0L, 1L); /* 타이머 등록 & 시작 */
-            Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new CMDCooldownTimer(), 0L, 20L); /* 타이머 등록 & 시작 */
-            Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new ItemCooldownTimer(), 0L, 2L); /* 타이머 등록 & 시작 */
+            sc.scheduleSyncRepeatingTask(this, new CountdownTimer(), 0L, 20L); /* 타이머 등록 & 시작 */
+            sc.scheduleSyncRepeatingTask(this, new ExitTimer(), 0L, 1L); /* 타이머 등록 & 시작 */
+            sc.scheduleSyncRepeatingTask(this, new CMDCooldownTimer(), 0L, 20L); /* 타이머 등록 & 시작 */
+            sc.scheduleSyncRepeatingTask(this, new ItemCooldownTimer(), 0L, 2L); /* 타이머 등록 & 시작 */
             this.getDescription().getCommands().keySet().forEach(s -> { /* 커맨드 & 탭컴플리터 등록 */
                 Objects.requireNonNull(getCommand(s)).setExecutor(new CMDHandler()); /* 커맨드 처리 클래스 등록 */
                 Objects.requireNonNull(getCommand(s)).setTabCompleter(new CMDHandler()); /* 탭컴플리터(커맨드 제안) 등록 */
