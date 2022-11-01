@@ -23,7 +23,7 @@ public class TextFormatter {
         }
     }
 
-    String string;
+    public String string;
     StringColor preColor;
     StringColor postColor;
     StringStyle preStyle;
