@@ -27,13 +27,13 @@ public class TranslateHandler {
                 try {
                     return KoreanMessage.get(key);
                 } catch (Exception ex) {
-                    return "Missing Key(KR)" + key;
+                    return key;
                 }
             default:
                 try {
                     return EnglishMessage.get(key);
                 } catch (Exception ex) {
-                    return "Missing Key(EN)" + key;
+                    return key;
                 }
         }
     }
