@@ -33,4 +33,16 @@ public class NotifyHandler {
     public static void sendMessage(Player p, TextFormatter key) {
         p.sendMessage(TranslateHandler.getText(key, p).toString());
     }
+
+    public static void broadcastMessage(String key) {
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            sendMessage(p, key);
+        }
+    }
+
+    public static void broadcastMessage(TextFormatter key) {
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            sendMessage(p, key);
+        }
+    }
 }
