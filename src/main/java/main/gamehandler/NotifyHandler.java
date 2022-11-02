@@ -25,4 +25,12 @@ public class NotifyHandler {
             sendTitle(p, key, key1, i, i1, i2);
         }
     }
+
+    public static void sendMessage(Player p, String key) {
+        p.sendMessage(TranslateHandler.getString(key, p));
+    }
+
+    public static void sendMessage(Player p, TextFormatter key) {
+        p.sendMessage(TranslateHandler.getText(key, p).toString());
+    }
 }
