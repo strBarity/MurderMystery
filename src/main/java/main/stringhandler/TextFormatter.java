@@ -50,27 +50,19 @@ public class TextFormatter {
     }
 
     public TextFormatter(String string) {
-        this.string = string;
+        this(string, null, null, null, null);
     }
 
     public TextFormatter(String string, StringColor preColor) {
-        this.string = string;
-        this.preColor = preColor;
-        usePreColor = true;
+        this(string, preColor, null, null, null);
     }
 
     public TextFormatter(String string, StringStyle preStyle) {
-        this.string = string;
-        this.preStyle = preStyle;
-        usePreStyle = true;
+        this(string, null, preStyle, null, null);
     }
 
     public TextFormatter(String string, StringColor preColor, StringStyle preStyle) {
-        this.string = string;
-        this.preColor = preColor;
-        this.preStyle = preStyle;
-        usePreColor = true;
-        usePreStyle = true;
+        this(string, preColor, preStyle, null, null);
     }
 
     public TextFormatter(String string, StringColor preColor, StringStyle preStyle, StringColor postColor, StringStyle postStyle) {
@@ -79,10 +71,10 @@ public class TextFormatter {
         this.preStyle = preStyle;
         this.postColor = postColor;
         this.postStyle = postStyle;
-        usePreColor = true;
-        usePreStyle = true;
-        usePostColor = true;
-        usePostStyle = true;
+        usePreColor = preColor != null;
+        usePreStyle = preStyle != null;
+        usePostColor = postColor != null;
+        usePostStyle = postStyle != null;
     }
 
     public String toString() {
