@@ -5,6 +5,7 @@ import com.mojang.authlib.properties.Property;
 import main.Main;
 import main.datahandler.SpawnLocationData;
 import main.gamehandler.MurderHandler;
+import main.parsehandler.ItemParser;
 import main.timerhandler.CountdownTimer;
 import main.timerhandler.ExitTimer;
 import net.minecraft.server.v1_12_R1.*;
@@ -189,12 +190,10 @@ public class EventListener implements Listener {
     public void onInventoryClick(@NotNull InventoryClickEvent e) {
         try {
             Player p = (Player) e.getWhoClicked();
-            if (e.getCurrentItem() == null) return;
-            else if (e.getCurrentItem().getItemMeta() == null) return;
-            else if (e.getCurrentItem().getItemMeta().getDisplayName() == null) return;
+            e.setCancelled(true);
+            if (ItemParser.isNotCustom(p.getInventory().getItemInMainHand())) return;
             String name = e.getCurrentItem().getItemMeta().getDisplayName();
             if (name.contains("게임 나가기") || name.contains("칼") || name.equals("활")) {
-                e.setCancelled(true);
                 if (name.contains("게임 나가기")) {
                     if (ExitTimer.getExitTimer().containsKey(p)) {
                         ExitTimer.getExitTimer().remove(p);
@@ -219,9 +218,8 @@ public class EventListener implements Listener {
     public void onInteract(@NotNull PlayerInteractEvent e) {
         try {
             Player p = e.getPlayer();
-            if (p.getInventory().getItemInMainHand() != null && p.getInventory().getItemInMainHand().getItemMeta() != null && p.getInventory().getItemInMainHand().getItemMeta().getDisplayName() != null && p.getInventory().getItemInMainHand().getItemMeta().getDisplayName().contains("활") && bowCooldown.get(p) == null) return;
             e.setCancelled(true);
-            if (p.getInventory().getItemInMainHand() == null || p.getInventory().getItemInMainHand().getItemMeta() == null || p.getInventory().getItemInMainHand().getItemMeta().getDisplayName() == null) return;
+            if (ItemParser.isNotCustom(p.getInventory().getItemInMainHand())) return;
             if (e.getClickedBlock() != null) {
                 if (e.getClickedBlock().getType().equals(Material.CAKE_BLOCK)) {
                     p.playSound(p.getLocation(), Sound.ENTITY_CHICKEN_EGG, SoundCategory.MASTER, 100, 1);
