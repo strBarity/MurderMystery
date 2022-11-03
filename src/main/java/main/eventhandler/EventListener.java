@@ -48,6 +48,7 @@ import static main.timerhandler.ItemCooldownTimer.bowCooldown;
 
 public class EventListener implements Listener {
     public enum DeathCause {MURDER_KNIFE, MURDER_THROW, MURDER_SNIPE, INNOCENT_SNIPE, INNOCENT_SHOOT, DROWNED, PORTAL}
+    public static ArrayList<String> onlineNameList = new ArrayList<>();
     public static final int startPlayerCount = 4;
     public static final List<Integer> summonedNpcsId = new ArrayList<>();
     public static final HashMap<Player, Integer> boardId = new HashMap<>();
@@ -269,6 +270,7 @@ public class EventListener implements Listener {
     public void onJoin(@NotNull PlayerJoinEvent e) {
         try {
             Player p = e.getPlayer();
+            onlineNameList.add(p.getName());
             p.removePotionEffect(PotionEffectType.INVISIBILITY);
             p.setGameMode(GameMode.ADVENTURE);
             p.getInventory().clear();
@@ -365,17 +367,19 @@ public class EventListener implements Listener {
         }
     }
     public static void mainScoreboardSet(@NotNull Player p) {
-        ScoreboardTeam team = new ScoreboardTeam(((CraftScoreboard) Bukkit.getScoreboardManager().getMainScoreboard()).getHandle(), p.getName());
-        team.setCollisionRule(ScoreboardTeamBase.EnumTeamPush.NEVER);
-        team.setNameTagVisibility(ScoreboardTeamBase.EnumNameTagVisibility.NEVER);
-        team.setCanSeeFriendlyInvisibles(false);
-        ArrayList<String> playerToAdd = new ArrayList<>();
-        for (Player player : Bukkit.getOnlinePlayers()) playerToAdd.add(player.getName());
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            PlayerConnection connection = ((CraftPlayer) player).getHandle().playerConnection;
-            connection.sendPacket(new PacketPlayOutScoreboardTeam(team, 1));
-            connection.sendPacket(new PacketPlayOutScoreboardTeam(team, 0));
-            connection.sendPacket(new PacketPlayOutScoreboardTeam(team, playerToAdd, 3));
+        try {
+            ScoreboardTeam team = new ScoreboardTeam(((CraftScoreboard) Bukkit.getScoreboardManager().getMainScoreboard()).getHandle(), p.getName());
+            team.setCollisionRule(ScoreboardTeamBase.EnumTeamPush.NEVER);
+            team.setNameTagVisibility(ScoreboardTeamBase.EnumNameTagVisibility.NEVER);
+            team.setCanSeeFriendlyInvisibles(false);
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                PlayerConnection connection = ((CraftPlayer) player).getHandle().playerConnection;
+                connection.sendPacket(new PacketPlayOutScoreboardTeam(team, 1));
+                connection.sendPacket(new PacketPlayOutScoreboardTeam(team, 0));
+                connection.sendPacket(new PacketPlayOutScoreboardTeam(team, onlineNameList, 3));
+            }
+        } catch (Exception e) {
+            printException(getClassName(), getMethodName(), e);
         }
     }
     public void playerDeath(Player victim, DeathCause deathCause) {

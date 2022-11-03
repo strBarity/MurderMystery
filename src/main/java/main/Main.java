@@ -25,7 +25,6 @@ import java.util.Objects;
 
 public final class Main extends JavaPlugin {
     public static final World CURRENTMAP = Bukkit.getWorld("archives");
-
     public static final Server s = Bukkit.getServer();
     public static final BukkitScheduler sc = Bukkit.getScheduler();
     public static final String INDEX = "§f[§cMurder§f] ";
@@ -94,10 +93,10 @@ public final class Main extends JavaPlugin {
                 for (int i : EventListener.summonedNpcsId) ((CraftPlayer) p).getHandle().playerConnection.sendPacket(new PacketPlayOutEntityDestroy(i));
         Bukkit.getConsoleSender().sendMessage(Main.INDEX + "§c플러그인이 비활성화되었습니다."); /* 플러그인 비활성화 메시지 전송 */
     }
-    public static String getClassName() {
+    public static @NotNull String getClassName() {
         return Thread.currentThread().getStackTrace()[2].getClassName();
     }
-    public static String getMethodName() {
+    public static @NotNull String getMethodName() {
         return Thread.currentThread().getStackTrace()[2].getMethodName();
     }
     public static void printException(@NotNull String className, @NotNull String methodName, @NotNull Exception e) {
