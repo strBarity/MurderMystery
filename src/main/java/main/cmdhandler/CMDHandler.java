@@ -57,8 +57,7 @@ public class CMDHandler implements TabExecutor {
             }
         } catch (Exception e) {
             printException(getClassName(), getMethodName(), e);
-        }
-        return null;
+        } return null;
     }
 }
 

@@ -77,21 +77,28 @@ public final class Main extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        if (MurderHandler.gameStarted) {
-            for (Location l : MurderHandler.savedGoldBlock) Main.CURRENTMAP.getBlockAt(l).setType(Material.GOLD_BLOCK);
-            for (int x = 107; x <= 117; x++)
-                for (int y = 88; y <= 95; y++) Main.CURRENTMAP.getBlockAt(x, y, 196).setType(Material.IRON_FENCE);
-            for (int x = 107; x <= 117; x++)
-                for (int y = 88; y <= 95; y++) Main.CURRENTMAP.getBlockAt(x, y, 156).setType(Material.IRON_FENCE);
-            for (int z = 175; z <= 177; z++)
-                for (int x = 98; x <= 99; x++) Main.CURRENTMAP.getBlockAt(x, 97, z).setType(Material.EMERALD_BLOCK);
-            for (int z = 174; z <= 178; z++)
-                for (int y = 90; y <= 95; y++) Main.CURRENTMAP.getBlockAt(96, y, z).setType(Material.IRON_FENCE);
-            Main.CURRENTMAP.getBlockAt(98, 98, 176).setType(Material.CAKE_BLOCK);
-        } if (!EventListener.summonedNpcsId.isEmpty())
-            for (Player p : Bukkit.getOnlinePlayers())
-                for (int i : EventListener.summonedNpcsId) ((CraftPlayer) p).getHandle().playerConnection.sendPacket(new PacketPlayOutEntityDestroy(i));
-        Bukkit.getConsoleSender().sendMessage(Main.INDEX + "§c플러그인이 비활성화되었습니다."); /* 플러그인 비활성화 메시지 전송 */
+        try {
+            if (MurderHandler.gameStarted) {
+                for (Location l : MurderHandler.savedGoldBlock)
+                    Main.CURRENTMAP.getBlockAt(l).setType(Material.GOLD_BLOCK);
+                for (int x = 107; x <= 117; x++)
+                    for (int y = 88; y <= 95; y++) Main.CURRENTMAP.getBlockAt(x, y, 196).setType(Material.IRON_FENCE);
+                for (int x = 107; x <= 117; x++)
+                    for (int y = 88; y <= 95; y++) Main.CURRENTMAP.getBlockAt(x, y, 156).setType(Material.IRON_FENCE);
+                for (int z = 175; z <= 177; z++)
+                    for (int x = 98; x <= 99; x++) Main.CURRENTMAP.getBlockAt(x, 97, z).setType(Material.EMERALD_BLOCK);
+                for (int z = 174; z <= 178; z++)
+                    for (int y = 90; y <= 95; y++) Main.CURRENTMAP.getBlockAt(96, y, z).setType(Material.IRON_FENCE);
+                Main.CURRENTMAP.getBlockAt(98, 98, 176).setType(Material.CAKE_BLOCK);
+            }
+            if (!EventListener.summonedNpcsId.isEmpty())
+                for (Player p : Bukkit.getOnlinePlayers())
+                    for (int i : EventListener.summonedNpcsId)
+                        ((CraftPlayer) p).getHandle().playerConnection.sendPacket(new PacketPlayOutEntityDestroy(i));
+            Bukkit.getConsoleSender().sendMessage(Main.INDEX + "§c플러그인이 비활성화되었습니다."); /* 플러그인 비활성화 메시지 전송 */
+        } catch (Exception e) {
+            printException(getClassName(), getMethodName(), e);
+        }
     }
     public static @NotNull String getClassName() {
         return Thread.currentThread().getStackTrace()[2].getClassName();

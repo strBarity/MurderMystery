@@ -8,6 +8,8 @@ import org.bukkit.entity.Player;
 import java.io.File;
 import java.io.IOException;
 
+import static main.Main.*;
+
 public class UserLanguageData {
     private static FileConfiguration userLanguageData;
     private static final File userLang = new File("plugins/Murder/userLanguageData.yml");
@@ -19,14 +21,14 @@ public class UserLanguageData {
                 userLanguageData.save(userLang);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            printException(getClassName(), getMethodName(), e);
         }
     }
     public static void saveData() {
         try {
             userLanguageData.save(userLang);
         } catch (IOException e) {
-            e.printStackTrace();
+            printException(getClassName(), getMethodName(), e);
         }
     }
 
