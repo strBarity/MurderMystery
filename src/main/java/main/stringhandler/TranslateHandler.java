@@ -24,17 +24,13 @@ public class TranslateHandler {
     public static String getString(String key, MurderLanguage lang) {
         switch (lang) {
             case Korean:
-                try {
-                    return KoreanMessage.get(key);
-                } catch (Exception ex) {
-                    return key;
-                }
+                String ko = KoreanMessage.get(key);
+                if (ko == null) ko = key;
+                return ko;
             default:
-                try {
-                    return EnglishMessage.get(key);
-                } catch (Exception ex) {
-                    return key;
-                }
+                String en = EnglishMessage.get(key);
+                if (en == null) en = key;
+                return en;
         }
     }
 
