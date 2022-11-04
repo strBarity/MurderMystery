@@ -91,7 +91,8 @@ public class TextFormatter {
             sb.append("§").append(Integer.toHexString(preColor.value));
         if (usePreStyle)
             sb.append("§").append(preStyle.value);
-        sb.append(strings);
+        for (String s : strings)
+            sb.append(s);
         if (usePostColor)
             sb.append("§").append(Integer.toHexString(postColor.value));
         if (usePostStyle)
