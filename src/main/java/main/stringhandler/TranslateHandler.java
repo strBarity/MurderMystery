@@ -39,8 +39,10 @@ public class TranslateHandler {
     }
 
     public static TextFormatter getText(TextFormatter text, MurderLanguage lang) {
-        TextFormatter formatter = new TextFormatter("", text.getPreColor(), text.getPreStyle(), text.getPostColor(), text.getPostStyle());
-        formatter.string = getString(text.string, lang);
+        TextFormatter formatter = new TextFormatter(new String[text.strings.length], text.getPreColor(), text.getPreStyle(), text.getPostColor(), text.getPostStyle());
+        for (int i = 0; i < text.strings.length; i++) {
+            formatter.strings[i] = getString(text.strings[i], lang);
+        }
         return formatter;
     }
 

@@ -31,7 +31,7 @@ public class TextFormatter {
         }
     }
 
-    public String string;
+    public String[] strings;
     private StringColor preColor;
     private StringColor postColor;
     private StringStyle preStyle;
@@ -57,24 +57,24 @@ public class TextFormatter {
         return postStyle;
     }
 
-    public TextFormatter(String string) {
+    public TextFormatter(String[] string) {
         this(string, null, null, null, null);
     }
 
-    public TextFormatter(String string, StringColor preColor) {
+    public TextFormatter(String[] string, StringColor preColor) {
         this(string, preColor, null, null, null);
     }
 
-    public TextFormatter(String string, StringStyle preStyle) {
+    public TextFormatter(String[] string, StringStyle preStyle) {
         this(string, null, preStyle, null, null);
     }
 
-    public TextFormatter(String string, StringColor preColor, StringStyle preStyle) {
+    public TextFormatter(String[] string, StringColor preColor, StringStyle preStyle) {
         this(string, preColor, preStyle, null, null);
     }
 
-    public TextFormatter(String string, StringColor preColor, StringStyle preStyle, StringColor postColor, StringStyle postStyle) {
-        this.string = string;
+    public TextFormatter(String[] string, StringColor preColor, StringStyle preStyle, StringColor postColor, StringStyle postStyle) {
+        this.strings = string;
         this.preColor = preColor;
         this.preStyle = preStyle;
         this.postColor = postColor;
@@ -87,14 +87,14 @@ public class TextFormatter {
 
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        if(usePreColor)
+        if (usePreColor)
             sb.append("§").append(Integer.toHexString(preColor.value));
-        if(usePreStyle)
+        if (usePreStyle)
             sb.append("§").append(preStyle.value);
-        sb.append(string);
-        if(usePostColor)
+        sb.append(strings);
+        if (usePostColor)
             sb.append("§").append(Integer.toHexString(postColor.value));
-        if(usePostStyle)
+        if (usePostStyle)
             sb.append("§").append(postStyle.value);
         return sb.toString();
     }
