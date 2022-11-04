@@ -11,6 +11,10 @@ public class TextFormatter {
         StringColor(int value) {
             this.value = value;
         }
+
+        public String toString() {
+            return "§" + Integer.toHexString(value);
+        }
     }
 
     public enum StringStyle {
@@ -20,6 +24,10 @@ public class TextFormatter {
 
         StringStyle(char value) {
             this.value = value;
+        }
+
+        public String toString() {
+            return "§" + value;
         }
     }
 
