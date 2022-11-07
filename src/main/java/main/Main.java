@@ -46,6 +46,7 @@ public final class Main extends JavaPlugin {
             });
             if (Bukkit.getOnlinePlayers() != null) {
                 for (Player p : Bukkit.getOnlinePlayers()) {
+                    EventListener.onlineNameList.add(p.getName());
                     p.setGameMode(GameMode.ADVENTURE);
                     ScoreboardTeam team = new ScoreboardTeam(((CraftScoreboard) Bukkit.getScoreboardManager().getMainScoreboard()).getHandle(), p.getName());
                     team.setCollisionRule(ScoreboardTeamBase.EnumTeamPush.NEVER);
