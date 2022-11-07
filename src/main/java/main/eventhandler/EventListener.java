@@ -208,7 +208,7 @@ public class EventListener implements Listener {
         try {
             Player p = (Player) e.getWhoClicked();
             e.setCancelled(true);
-            if (ItemParser.isNotCustom(p.getInventory().getItemInMainHand())) return;
+            if (ItemParser.isNotCustom(p.getInventory().getItemInMainHand()) || ItemParser.isNotCustom(e.getCurrentItem())) return;
             String name = e.getCurrentItem().getItemMeta().getDisplayName();
             if (name.contains("게임 나가기") || name.contains("칼") || name.equals("활")) {
                 if (name.contains("게임 나가기")) {
