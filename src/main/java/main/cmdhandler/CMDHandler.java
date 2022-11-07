@@ -38,9 +38,7 @@ public class CMDHandler implements TabExecutor {
         } catch (Exception e) {
             printException(e);
         } return false;
-    }
-
-    @Override
+    } @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
         try {
             if (commandSender.isOp()) {
