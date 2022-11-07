@@ -157,7 +157,7 @@ public class MurderTHandler {
                     p.sendMessage(w);
             }
         } catch (Exception e) {
-            printException(getClassName(), getMethodName(), e);
+            printException(e);
         }
     }
 }

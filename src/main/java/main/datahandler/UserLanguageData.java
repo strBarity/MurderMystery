@@ -21,14 +21,14 @@ public class UserLanguageData {
                 userLanguageData.save(userLang);
             }
         } catch (IOException e) {
-            printException(getClassName(), getMethodName(), e);
+            printException(e);
         }
     }
     public static void saveData() {
         try {
             userLanguageData.save(userLang);
         } catch (IOException e) {
-            printException(getClassName(), getMethodName(), e);
+            printException(e);
         }
     }
 

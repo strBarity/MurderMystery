@@ -143,7 +143,7 @@ public class MurderHandler {
                 players[i].sendTitle("§a역할: 시민", "§e최대한 오래 살아남으세요!", 0, 100, 20);
             }
         } catch (Exception e) {
-            printException(getClassName(), getMethodName(), e);
+            printException(e);
         }
     }
     public static void stopGame(@NotNull World w, @NotNull Boolean innocentWin, @NotNull WinType winType, @Nullable EventListener.DeathCause murderDeathCause) {
@@ -216,7 +216,7 @@ public class MurderHandler {
                 }
             }, 200L);
         } catch (Exception e) {
-            printException(getClassName(), getMethodName(), e);
+            printException(e);
         }
     }
 }

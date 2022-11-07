@@ -49,7 +49,7 @@ public class ItemCooldownTimer implements Runnable {
                 }
             }
         } catch (Exception e) {
-            printException(getClassName(), getMethodName(), e);
+            printException(e);
         }
     }
 }

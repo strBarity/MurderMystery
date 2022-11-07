@@ -36,7 +36,7 @@ public class CMDHandler implements TabExecutor {
                 MurderTHandler.onCommand(commandSender, strings);
             }
         } catch (Exception e) {
-            printException(getClassName(), getMethodName(), e);
+            printException(e);
         } return false;
     }
 
@@ -56,7 +56,7 @@ public class CMDHandler implements TabExecutor {
                 }
             }
         } catch (Exception e) {
-            printException(getClassName(), getMethodName(), e);
+            printException(e);
         } return null;
     }
 }

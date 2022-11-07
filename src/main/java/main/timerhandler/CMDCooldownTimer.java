@@ -23,7 +23,7 @@ public class CMDCooldownTimer implements Runnable {
                 }
             }
         } catch (Exception e) {
-            printException(getClassName(), getMethodName(), e);
+            printException(e);
         }
     }
     public static Map<Player, Integer> getCMDClickStack() {

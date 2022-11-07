@@ -58,85 +58,102 @@ public class EventListener implements Listener {
     public static final HashMap<Player, String> rankType = new HashMap<>();
     public static final HashMap<Player, ChatColor> rankColor = new HashMap<>();
     public static void registerArmorstandSpin(ArmorStand a) {
-        int i = sc.scheduleSyncRepeatingTask(Main.getPlugin(Main.class), () -> {
-            Location l = a.getLocation();
-            a.teleport(new Location(a.getWorld(), l.getX(), l.getY(), l.getZ(), l.getYaw()+7.5F, l.getPitch()));
-        }, 0, 1L);
-        spinStandId.put(a, i);
+        try {
+            int i = sc.scheduleSyncRepeatingTask(Main.getPlugin(Main.class), () -> {
+                Location l = a.getLocation();
+                a.teleport(new Location(a.getWorld(), l.getX(), l.getY(), l.getZ(), l.getYaw() + 7.5F, l.getPitch()));
+            }, 0, 1L);
+            spinStandId.put(a, i);
+        } catch (Exception e) {
+            printException(e);
+        }
     }
     public static void registerAntiOutMap(Player p) {
-        int i = s.getScheduler().scheduleSyncRepeatingTask(Main.getPlugin(Main.class), () -> {
-            Location l = p.getLocation();
-            if (l.getX() < 29 || l.getX() > 219 || l.getY() < 24 || l.getY() > 125 || l.getZ() < 22 || l.getZ() > 330) {
-                if (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR)) p.teleport(new Location(p.getWorld(), 104.5, 88.0, 176.5, 90F, 0F));
-                else {
-                    p.kickPlayer(Main.INDEX + "§4비정상적인 맵 탈출이 감지되었습니다.");
+        try {
+            int i = s.getScheduler().scheduleSyncRepeatingTask(Main.getPlugin(Main.class), () -> {
+                Location l = p.getLocation();
+                if (l.getX() < 29 || l.getX() > 219 || l.getY() < 24 || l.getY() > 125 || l.getZ() < 22 || l.getZ() > 330) {
+                    if (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))
+                        p.teleport(new Location(p.getWorld(), 104.5, 88.0, 176.5, 90F, 0F));
+                    else {
+                        p.kickPlayer(Main.INDEX + "§4비정상적인 맵 탈출이 감지되었습니다.");
+                    }
+                    if (Bukkit.getOnlinePlayers() != null) for (Player o : Bukkit.getOnlinePlayers()) {
+                        if (o.isOp())
+                            o.sendMessage(Main.INDEX + p.getName() + "§c님이 §6" + p.getGameMode().toString() + " §c모드에서 맵 탈출을 시도했습니다.");
+                    }
                 }
-                if (Bukkit.getOnlinePlayers() != null) for (Player o : Bukkit.getOnlinePlayers()) {
-                    if (o.isOp()) o.sendMessage(Main.INDEX + p.getName() + "§c님이 §6" + p.getGameMode().toString() + " §c모드에서 맵 탈출을 시도했습니다.");
-                }
-            }
-        }, 0, 1L);
-        antiOutMapId.put(p, i);
+            }, 0, 1L);
+            antiOutMapId.put(p, i);
+        } catch (Exception e) {
+            printException(e);
+        }
     } public static void registerBoard(Player p) {
-        int i = s.getScheduler().scheduleSyncRepeatingTask(Main.getPlugin(Main.class), () -> {
-            final Scoreboard board = Bukkit.getScoreboardManager().getNewScoreboard();
-            final Objective objective = board.registerNewObjective("§e§l머더 미스터리", "dummy");
-            objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-            Score t = objective.getScore("§7" + LocalDate.now().format(DateTimeFormatter.ofPattern("MM/dd/yy")) + "§8 Murder");
-            if (MurderHandler.gameStarted) {
-                t.setScore(11);
-                Score b1 = objective.getScore(" ");
-                b1.setScore(10);
-                Score r = objective.getScore("§f역할: " + MurderHandler.roleType.get(p));
-                r.setScore(9);
-                Score b2 = objective.getScore("  ");
-                b2.setScore(8);
-                Score in = objective.getScore("§f남은 시민: §a" + MurderHandler.innocentAlive + "§f명");
-                in.setScore(7);
-                Score ti = objective.getScore("§f남은 시간: §a" + CountdownTimer.getGameCountdownMin() + ":" + CountdownTimer.getGameCountdownSec());
-                if (CountdownTimer.getGameCountdownSec() < 10) ti = objective.getScore("§f남은 시간: §a" + CountdownTimer.getGameCountdownMin() + ":0" + CountdownTimer.getGameCountdownSec());
-                ti.setScore(6);
-                Score b3 = objective.getScore("   ");
-                b3.setScore(5);
-                Score b = objective.getScore("§f탐정: §a생존");
-                if (MurderHandler.bowType == MurderHandler.BowType.BowDrop) {
-                    b = objective.getScore("§f활: §c떨어짐");
-                } else if (MurderHandler.bowType == MurderHandler.BowType.BowNotDrop) {
-                    b = objective.getScore("§f활: §a떨어지지 않음");
-                } b.setScore(4);
-                Score b4 = objective.getScore("     ");
-                b4.setScore(3);
-                Score m = objective.getScore("§f맵: §a" + p.getWorld().getName());
-                m.setScore(2);
-            } else {
-                t.setScore(9);
-                Score b1 = objective.getScore(" ");
-                b1.setScore(8);
-                Score m = objective.getScore("§f맵: §a" + p.getWorld().getName());
-                m.setScore(7);
-                Score l = objective.getScore("§f플레이어: §a" + s.getOnlinePlayers().size() + "/32");
-                l.setScore(6);
-                Score b2 = objective.getScore("  ");
-                b2.setScore(5);
-                if (Bukkit.getOnlinePlayers().size() >= startPlayerCount) {
-                    Score s = objective.getScore("§a" + CountdownTimer.startCountdown + "초 §f후 시작");
-                    s.setScore(4);
+        try {
+            int i = s.getScheduler().scheduleSyncRepeatingTask(Main.getPlugin(Main.class), () -> {
+                final Scoreboard board = Bukkit.getScoreboardManager().getNewScoreboard();
+                final Objective objective = board.registerNewObjective("§e§l머더 미스터리", "dummy");
+                objective.setDisplaySlot(DisplaySlot.SIDEBAR);
+                Score t = objective.getScore("§7" + LocalDate.now().format(DateTimeFormatter.ofPattern("MM/dd/yy")) + "§8 Murder");
+                if (MurderHandler.gameStarted) {
+                    t.setScore(11);
+                    Score b1 = objective.getScore(" ");
+                    b1.setScore(10);
+                    Score r = objective.getScore("§f역할: " + MurderHandler.roleType.get(p));
+                    r.setScore(9);
+                    Score b2 = objective.getScore("  ");
+                    b2.setScore(8);
+                    Score in = objective.getScore("§f남은 시민: §a" + MurderHandler.innocentAlive + "§f명");
+                    in.setScore(7);
+                    Score ti = objective.getScore("§f남은 시간: §a" + CountdownTimer.getGameCountdownMin() + ":" + CountdownTimer.getGameCountdownSec());
+                    if (CountdownTimer.getGameCountdownSec() < 10)
+                        ti = objective.getScore("§f남은 시간: §a" + CountdownTimer.getGameCountdownMin() + ":0" + CountdownTimer.getGameCountdownSec());
+                    ti.setScore(6);
+                    Score b3 = objective.getScore("   ");
+                    b3.setScore(5);
+                    Score b = objective.getScore("§f탐정: §a생존");
+                    if (MurderHandler.bowType == MurderHandler.BowType.BowDrop) {
+                        b = objective.getScore("§f활: §c떨어짐");
+                    } else if (MurderHandler.bowType == MurderHandler.BowType.BowNotDrop) {
+                        b = objective.getScore("§f활: §a떨어지지 않음");
+                    }
+                    b.setScore(4);
+                    Score b4 = objective.getScore("     ");
+                    b4.setScore(3);
+                    Score m = objective.getScore("§f맵: §a" + p.getWorld().getName());
+                    m.setScore(2);
                 } else {
-                    Score s = objective.getScore("§f플레이어를 기다리는 중...");
-                    s.setScore(4);
+                    t.setScore(9);
+                    Score b1 = objective.getScore(" ");
+                    b1.setScore(8);
+                    Score m = objective.getScore("§f맵: §a" + p.getWorld().getName());
+                    m.setScore(7);
+                    Score l = objective.getScore("§f플레이어: §a" + s.getOnlinePlayers().size() + "/32");
+                    l.setScore(6);
+                    Score b2 = objective.getScore("  ");
+                    b2.setScore(5);
+                    if (Bukkit.getOnlinePlayers().size() >= startPlayerCount) {
+                        Score s = objective.getScore("§a" + CountdownTimer.startCountdown + "초 §f후 시작");
+                        s.setScore(4);
+                    } else {
+                        Score s = objective.getScore("§f플레이어를 기다리는 중...");
+                        s.setScore(4);
+                    }
+                    Score b3 = objective.getScore("   ");
+                    b3.setScore(3);
+                    Score mo = objective.getScore("§f모드: §a일반");
+                    mo.setScore(2);
                 }
-                Score b3 = objective.getScore("   ");
-                b3.setScore(3);
-                Score mo = objective.getScore("§f모드: §a일반");
-                mo.setScore(2);
-            } Score b4 = objective.getScore("    ");
-            b4.setScore(1);
-            Score a = objective.getScore("§eChoco24h");
-            a.setScore(0);
-            p.setScoreboard(board);
-        }, 0, 20L);
-        boardId.put(p, i);
+                Score b4 = objective.getScore("    ");
+                b4.setScore(1);
+                Score a = objective.getScore("§eChoco24h");
+                a.setScore(0);
+                p.setScoreboard(board);
+            }, 0, 20L);
+            boardId.put(p, i);
+        } catch (Exception e) {
+            printException(e);
+        }
     } @EventHandler(priority=EventPriority.HIGHEST)
     public void onAttack(@NotNull EntityDamageByEntityEvent e) {
         try {
@@ -148,7 +165,7 @@ public class EventListener implements Listener {
             if (murderer == e.getDamager() && (MurderHandler.roleType.get(victim).contains("시민") || MurderHandler.roleType.get(victim).contains("탐정")) && attacker.getInventory().getItemInMainHand().getItemMeta().getDisplayName().contains("칼")) playerDeath(victim, DeathCause.MURDER_KNIFE);
             e.setCancelled(true);
         } catch (Exception exception) {
-            printException(getClassName(), getMethodName(), exception);
+            printException(exception);
         }
     } @EventHandler(priority=EventPriority.HIGH)
     public void onSnipe(@NotNull ProjectileHitEvent e) {
@@ -166,7 +183,7 @@ public class EventListener implements Listener {
                 }
             }
         } catch (Exception exception) {
-            printException(getClassName(), getMethodName(), exception);
+            printException(exception);
         }
     } @EventHandler
     public void onBowShoot(EntityShootBowEvent e) {
@@ -177,14 +194,14 @@ public class EventListener implements Listener {
                 bowCooldown.put(p, 5.0);
             }
         } catch (Exception exception) {
-            printException(getClassName(), getMethodName(), exception);
+            printException(exception);
         }
     } @EventHandler
     public void onPickupArrow(PlayerPickupArrowEvent e) {
         try {
             e.setCancelled(true);
         } catch (Exception exception) {
-            printException(getClassName(), getMethodName(), exception);
+            printException(exception);
         }
     } @EventHandler
     public void onInventoryClick(@NotNull InventoryClickEvent e) {
@@ -205,14 +222,14 @@ public class EventListener implements Listener {
                 }
             }
         } catch (Exception exception) {
-            printException(getClassName(), getMethodName(), exception);
+            printException(exception);
         }
     } @EventHandler
     public void onSwap(PlayerSwapHandItemsEvent e) {
         try {
             e.setCancelled(true);
         } catch (Exception exception) {
-            printException(getClassName(), getMethodName(), exception);
+            printException(exception);
         }
     } @EventHandler
     public void onInteract(@NotNull PlayerInteractEvent e) {
@@ -255,14 +272,14 @@ public class EventListener implements Listener {
                 }
             }
         } catch (Exception exception) {
-            printException(getClassName(), getMethodName(), exception);
+            printException(exception);
         }
     } @EventHandler
     public void onDrop(@NotNull PlayerDropItemEvent e) {
         try {
             e.setCancelled(true);
         } catch (Exception exception) {
-            printException(getClassName(), getMethodName(), exception);
+            printException(exception);
         }
     } @EventHandler
     public void onJoin(@NotNull PlayerJoinEvent e) {
@@ -315,7 +332,7 @@ public class EventListener implements Listener {
             mainScoreboardSet(p);
             SpawnLocationData.registerSLWand(p);
         } catch (Exception exception) {
-            printException(getClassName(), getMethodName(), exception);
+            printException(exception);
         }
     } @EventHandler
     public void onQuit(@NotNull PlayerQuitEvent e) {
@@ -327,14 +344,14 @@ public class EventListener implements Listener {
             sc.cancelTask(antiOutMapId.get(e.getPlayer()));
             sc.cancelTask(SpawnLocationData.slWandId.get(e.getPlayer()));
         } catch (Exception exception) {
-            printException(getClassName(), getMethodName(), exception);
+            printException(exception);
         }
     } @EventHandler
     public void onChat(@NotNull AsyncPlayerChatEvent e) {
         try {
             e.setFormat(rankType.get(e.getPlayer()) + e.getPlayer().getName() + "§7: §f" + e.getMessage());
         } catch (Exception exception) {
-            printException(getClassName(), getMethodName(), exception);
+            printException(exception);
         }
     } @EventHandler
     public void onDamage(@NotNull EntityDamageEvent e) {
@@ -352,7 +369,7 @@ public class EventListener implements Listener {
                 }
             }
         } catch (Exception exception) {
-            printException(getClassName(), getMethodName(), exception);
+            printException(exception);
         }
     } @EventHandler
     public void onFood(@NotNull FoodLevelChangeEvent e) {
@@ -361,7 +378,7 @@ public class EventListener implements Listener {
             Player p = (Player) e.getEntity();
             p.setFoodLevel(20);
         } catch (Exception exception) {
-            printException(getClassName(), getMethodName(), exception);
+            printException(exception);
         }
     }
     public static void mainScoreboardSet(@NotNull Player p) {
@@ -377,7 +394,7 @@ public class EventListener implements Listener {
                 connection.sendPacket(new PacketPlayOutScoreboardTeam(team, onlineNameList, 3));
             }
         } catch (Exception e) {
-            printException(getClassName(), getMethodName(), e);
+            printException(e);
         }
     }
     public void playerDeath(Player victim, DeathCause deathCause) {
@@ -485,7 +502,7 @@ public class EventListener implements Listener {
             if (MurderHandler.innocentAlive == 0)
                 MurderHandler.stopGame(CURRENTMAP, false, MurderHandler.WinType.INNOCENT_ALL_DIED, null);
         } catch (Exception exception) {
-            printException(getClassName(), getMethodName(), exception);
+            printException(exception);
         }
     }
 }

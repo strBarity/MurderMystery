@@ -16,7 +16,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import static main.Main.*;
-import static main.Main.getMethodName;
 
 public class SpawnLocationData {
     private static FileConfiguration spawnLocationData;
@@ -47,14 +46,14 @@ public class SpawnLocationData {
                 spawnLocationData.save(spawnLocation);
             }
         } catch (IOException e) {
-            printException(getClassName(), getMethodName(), e);
+            printException(e);
         }
     }
     public static void saveData() {
         try {
             spawnLocationData.save(spawnLocation);
         } catch (IOException e) {
-            printException(getClassName(), getMethodName(), e);
+            printException(e);
         }
     }
     public static List<String> getSpawnLocation(String mapName) {

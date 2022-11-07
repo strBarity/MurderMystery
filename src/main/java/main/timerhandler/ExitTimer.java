@@ -24,7 +24,7 @@ public class ExitTimer implements Runnable {
                 }
             }
         } catch (Exception e) {
-            printException(getClassName(), getMethodName(), e);
+            printException(e);
         }
     } public static Map<Player, Integer> getExitTimer() {
         return exitTimer;

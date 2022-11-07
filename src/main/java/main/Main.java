@@ -71,7 +71,7 @@ public final class Main extends JavaPlugin {
                 }
             }
         } catch (Exception e) {
-            printException(getClassName(), getMethodName(), e);
+            printException(e);
         }
     }
 
@@ -97,17 +97,11 @@ public final class Main extends JavaPlugin {
                         ((CraftPlayer) p).getHandle().playerConnection.sendPacket(new PacketPlayOutEntityDestroy(i));
             Bukkit.getConsoleSender().sendMessage(Main.INDEX + "§c플러그인이 비활성화되었습니다."); /* 플러그인 비활성화 메시지 전송 */
         } catch (Exception e) {
-            printException(getClassName(), getMethodName(), e);
+            printException(e);
         }
     }
-    public static @NotNull String getClassName() {
-        return Thread.currentThread().getStackTrace()[2].getClassName();
-    }
-    public static @NotNull String getMethodName() {
-        return Thread.currentThread().getStackTrace()[2].getMethodName();
-    }
-    public static void printException(@NotNull String className, @NotNull String methodName, @NotNull Exception e) {
-        s.broadcastMessage(Main.INDEX + "§6" + className + "." + methodName + "()§c에서 오류가 발생했습니다.");
+    public static void printException(@NotNull Exception e) {
+        s.broadcastMessage(Main.INDEX + "§6" + Thread.currentThread().getStackTrace()[2].getClassName() + "." + Thread.currentThread().getStackTrace()[2].getMethodName() + "()§c에서 오류가 발생했습니다.");
         if (e.getMessage() != null) s.broadcastMessage(Main.INDEX + "§4" + e.getClass().getName() + ": §c" + e.getMessage());
         else s.broadcastMessage(Main.INDEX + "§4" + e.getClass().getName() + ": §c알 수 없는 오류");
         e.printStackTrace();

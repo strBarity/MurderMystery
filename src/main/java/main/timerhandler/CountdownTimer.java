@@ -73,7 +73,7 @@ public class CountdownTimer implements Runnable {
                 gameCountdownMin = 4L;
             }
         } catch (Exception e) {
-            printException(getClassName(), getMethodName(), e);
+            printException(e);
         }
     } public static Long getGameCountdownSec() {
         return gameCountdownSec;
