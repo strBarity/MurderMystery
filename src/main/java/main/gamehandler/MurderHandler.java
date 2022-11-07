@@ -39,9 +39,13 @@ public class MurderHandler {
     public static final List<Location> savedGoldBlock = new ArrayList<>();
     public static void startGame(@NotNull World w) {
         try {
-            if (Bukkit.getOnlinePlayers().size() < 2) throw new RuntimeException("플레이어 수가 너무 적습니다");
-            else if (SpawnLocationData.getSpawnLocation(Main.CURRENTMAP.getName()).isEmpty()) throw new RuntimeException("저장된 스폰 위치가 존재하지 않습니다");
-            gameStarted = true;
+            if (Bukkit.getOnlinePlayers().size() < 2) {
+                s.broadcastMessage(Main.INDEX + "§c플레이어 수가 너무 적어 게임이 시작되지 않았습니다.");
+                return;
+            } else if (SpawnLocationData.getSpawnLocation(Main.CURRENTMAP.getName()).isEmpty()) {
+                s.broadcastMessage(Main.INDEX + "§c지정된 스폰 위치가 없어 게임이 시작되지 않았습니다.");
+                return;
+            } gameStarted = true;
             innocentAlive = Bukkit.getOnlinePlayers().size() - 1;
             for (int z = 166; z <= 187; z++)
                 for (int x = 103; x <= 134; x++)
