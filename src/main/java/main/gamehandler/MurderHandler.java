@@ -40,10 +40,10 @@ public class MurderHandler {
     public static void startGame(@NotNull World w) {
         try {
             if (Bukkit.getOnlinePlayers().size() < 2) {
-                s.broadcastMessage(Main.INDEX + "§c플레이어 수가 너무 적어 게임이 시작되지 않았습니다.");
+                s.broadcastMessage(INDEX + "§c플레이어 수가 너무 적어 게임이 시작되지 않았습니다.");
                 return;
             } else if (SpawnLocationData.getSpawnLocation(Main.CURRENTMAP.getName()).isEmpty()) {
-                s.broadcastMessage(Main.INDEX + "§c지정된 스폰 위치가 없어 게임이 시작되지 않았습니다.");
+                s.broadcastMessage(INDEX + "§c지정된 스폰 위치가 없어 게임이 시작되지 않았습니다.");
                 return;
             } gameStarted = true;
             innocentAlive = Bukkit.getOnlinePlayers().size() - 1;
