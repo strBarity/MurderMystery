@@ -186,10 +186,10 @@ public class MurderHandler {
                     if (p == murderer) p.sendTitle("§a승리했습니다!", "§e모든 플레이어를 처치했습니다!", 0, 200, 0);
                     else p.sendTitle("§c패배했습니다!", "§e모든 시민이 사망했습니다!", 0, 200, 0);
                 }
-            } if (bowType == BowType.DectectiveAlive) Bukkit.broadcastMessage("\n                                    §7탐정: " + EventListener.rankColor.get(detective) + detective.getName());
-            else Bukkit.broadcastMessage("\n                                    §7탐정: " + EventListener.rankColor.get(detective) + "§m" + detective.getName());
-            if (innocentWin) Bukkit.broadcastMessage("                                §7살인자: " + EventListener.rankColor.get(murderer) + murderer.getName() + "§7 (§6" + murderKills + "§7 킬)");
-            else Bukkit.broadcastMessage("                                     §7살인자: " + EventListener.rankColor.get(murderer) + "§m" + murderer.getName() + "§7 (§6" + murderKills + "§7 킬)");
+            } if (bowType == BowType.DectectiveAlive) Bukkit.broadcastMessage(String.format("\n                                    §7탐정: %s%s", EventListener.rankColor.get(detective), detective.getName()));
+            else Bukkit.broadcastMessage(String.format("\n                                    §7탐정: %s§m%s", EventListener.rankColor.get(detective), detective.getName()));
+            if (innocentWin) Bukkit.broadcastMessage(String.format("                                §7살인자: %s%s§7 (§6%d§7 킬)", EventListener.rankColor.get(murderer), murderer.getName(), murderKills));
+            else Bukkit.broadcastMessage(String.format("                                     §7살인자: %s§m%s§7 (§6%d§7 킬)", EventListener.rankColor.get(murderer), murderer.getName(), murderKills));
             if (heroName != null) Bukkit.broadcastMessage("                                    §7영웅: §f제작중");
             Bukkit.broadcastMessage("\n" + boarder);
             CountdownTimer.startCountdown = 70L;
