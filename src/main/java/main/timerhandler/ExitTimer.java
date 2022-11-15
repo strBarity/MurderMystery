@@ -10,6 +10,9 @@ import static main.Main.*;
 
 public class ExitTimer implements Runnable {
     private static final Map<Player, Integer> exitTimer = new HashMap<>();
+    public static Map<Player, Integer> getExitTimer() {
+        return exitTimer;
+    }
     @Override
     public void run() {
         try {
@@ -26,7 +29,5 @@ public class ExitTimer implements Runnable {
         } catch (Exception e) {
             printException(e);
         }
-    } public static Map<Player, Integer> getExitTimer() {
-        return exitTimer;
     }
 }

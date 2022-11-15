@@ -11,9 +11,23 @@ import static main.Main.*;
 import static main.eventhandler.EventListener.startPlayerCount;
 
 public class CountdownTimer implements Runnable {
-    public static Long startCountdown = 60L;
+    private static Long startCountdown = 60L;
     private static Long gameCountdownSec = 30L;
     private static Long gameCountdownMin = 4L;
+
+    public static Long getStartCountdown() {
+        return startCountdown;
+    }
+    public static void setStartCountdown(Long startCountdown) {
+        CountdownTimer.startCountdown = startCountdown;
+    }
+    public static Long getGameCountdownSec() {
+        return gameCountdownSec;
+    }
+    public static Long getGameCountdownMin() {
+        return gameCountdownMin;
+    }
+
     @Override
     public void run() {
         try {
@@ -75,9 +89,5 @@ public class CountdownTimer implements Runnable {
         } catch (Exception e) {
             printException(e);
         }
-    } public static Long getGameCountdownSec() {
-        return gameCountdownSec;
-    } public static Long getGameCountdownMin() {
-        return gameCountdownMin;
     }
 }

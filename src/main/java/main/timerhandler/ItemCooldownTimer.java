@@ -12,7 +12,10 @@ import java.util.Map;
 import static main.Main.*;
 
 public class ItemCooldownTimer implements Runnable {
-    public static final HashMap<Player, Double> bowCooldown = new HashMap<>();
+    private static final HashMap<Player, Double> bowCooldown = new HashMap<>();
+    public static void setBowCooldown(Player player, Double cooldown) {
+        bowCooldown.put(player, cooldown);
+    }
     @Override
     public void run() {
         try {

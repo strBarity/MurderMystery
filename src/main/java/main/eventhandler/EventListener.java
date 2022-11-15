@@ -8,10 +8,11 @@ import main.gamehandler.MurderHandler;
 import main.parsehandler.ItemParser;
 import main.timerhandler.CountdownTimer;
 import main.timerhandler.ExitTimer;
+import main.timerhandler.ItemCooldownTimer;
 import net.minecraft.server.v1_12_R1.*;
-import org.bukkit.*;
 import org.bukkit.Material;
 import org.bukkit.SoundCategory;
+import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.craftbukkit.v1_12_R1.CraftServer;
 import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
@@ -45,7 +46,6 @@ import java.util.*;
 
 import static main.Main.*;
 import static main.gamehandler.MurderHandler.*;
-import static main.timerhandler.ItemCooldownTimer.bowCooldown;
 
 public class EventListener implements Listener {
     public enum DeathCause {MURDER_KNIFE, MURDER_THROW, MURDER_SNIPE, INNOCENT_SNIPE, INNOCENT_SHOOT, DROWNED, PORTAL}
@@ -133,7 +133,7 @@ public class EventListener implements Listener {
                     Score b2 = objective.getScore("  ");
                     b2.setScore(5);
                     if (Bukkit.getOnlinePlayers().size() >= startPlayerCount) {
-                        Score s = objective.getScore(String.format("§a%d초 §f후 시작", CountdownTimer.startCountdown));
+                        Score s = objective.getScore(String.format("§a%d초 §f후 시작", CountdownTimer.getStartCountdown()));
                         s.setScore(4);
                     } else {
                         Score s = objective.getScore("§f플레이어를 기다리는 중...");
@@ -191,7 +191,7 @@ public class EventListener implements Listener {
             if (!e.getEntity().getType().equals(EntityType.PLAYER)) return;
             Player p = (Player) e.getEntity();
             if (MurderHandler.roleType.get(p).contains("탐정")) {
-                bowCooldown.put(p, 5.0);
+                ItemCooldownTimer.setBowCooldown(p, 5.0);
             }
         } catch (Exception exception) {
             printException(exception);

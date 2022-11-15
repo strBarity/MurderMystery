@@ -192,7 +192,7 @@ public class MurderHandler {
             else Bukkit.broadcastMessage(String.format("                                     §7살인자: %s§m%s§7 (§6%d§7 킬)", EventListener.rankColor.get(murderer), murderer.getName(), murderKills));
             if (heroName != null) Bukkit.broadcastMessage("                                    §7영웅: §f제작중");
             Bukkit.broadcastMessage("\n" + boarder);
-            CountdownTimer.startCountdown = 70L;
+            CountdownTimer.setStartCountdown(70L);
             sc.scheduleSyncDelayedTask(Main.getPlugin(Main.class), () -> {
                 murderer = null;
                 detective = null;

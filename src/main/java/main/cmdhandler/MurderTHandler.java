@@ -136,7 +136,7 @@ public class MurderTHandler {
                 case "game":
                     switch (args[1]) {
                         case "shorten":
-                            CountdownTimer.startCountdown = 5L;
+                            CountdownTimer.setStartCountdown(5L);
                             Bukkit.getServer().broadcastMessage(Main.INDEX + "§b관리자가 시작 시간을 단축시켰습니다.");
                             break;
                         case "start":

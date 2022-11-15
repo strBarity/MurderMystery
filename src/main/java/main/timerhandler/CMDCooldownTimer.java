@@ -10,6 +10,9 @@ import static main.Main.*;
 public class CMDCooldownTimer implements Runnable {
 
     private static final Map<Player, Integer> cmdClickStack = new HashMap<>();
+    public static Map<Player, Integer> getCMDClickStack() {
+        return cmdClickStack;
+    }
 
     @Override
     public void run() {
@@ -25,8 +28,5 @@ public class CMDCooldownTimer implements Runnable {
         } catch (Exception e) {
             printException(e);
         }
-    }
-    public static Map<Player, Integer> getCMDClickStack() {
-        return cmdClickStack;
     }
 }
