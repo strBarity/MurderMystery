@@ -1,6 +1,5 @@
 package main.timerhandler;
 
-import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -9,7 +8,8 @@ import org.bukkit.inventory.ItemStack;
 import java.util.HashMap;
 import java.util.Map;
 
-import static main.Main.*;
+import static main.Main.printException;
+import static net.md_5.bungee.api.ChatMessageType.ACTION_BAR;
 
 public class ItemCooldownTimer implements Runnable {
     private static final HashMap<Player, Double> bowCooldown = new HashMap<>();
@@ -25,27 +25,27 @@ public class ItemCooldownTimer implements Runnable {
                     bowCooldown.put(entry.getKey(), entry.getValue() - 0.1);
                     final Player.Spigot s = entry.getKey().spigot();
                     if (v >= 4.5)
-                        s.sendMessage(ChatMessageType.ACTION_BAR, new ComponentBuilder("§e" + v + "s §8[§a■§c■■■■■■■■■§8]").create());
+                        s.sendMessage(ACTION_BAR, new ComponentBuilder("§e" + v + "s §8[§a■§c■■■■■■■■■§8]").create());
                     else if (v >= 4.0)
-                        s.sendMessage(ChatMessageType.ACTION_BAR, new ComponentBuilder("§e" + v + "s §8[§a■■§c■■■■■■■■§8]").create());
+                        s.sendMessage(ACTION_BAR, new ComponentBuilder("§e" + v + "s §8[§a■■§c■■■■■■■■§8]").create());
                     else if (v >= 3.5)
-                        s.sendMessage(ChatMessageType.ACTION_BAR, new ComponentBuilder("§e" + v + "s §8[§a■■■§c■■■■■■■§8]").create());
+                        s.sendMessage(ACTION_BAR, new ComponentBuilder("§e" + v + "s §8[§a■■■§c■■■■■■■§8]").create());
                     else if (v >= 3.0)
-                        s.sendMessage(ChatMessageType.ACTION_BAR, new ComponentBuilder("§e" + v + "s §8[§a■■■■§c■■■■■■§8]").create());
+                        s.sendMessage(ACTION_BAR, new ComponentBuilder("§e" + v + "s §8[§a■■■■§c■■■■■■§8]").create());
                     else if (v >= 2.5)
-                        s.sendMessage(ChatMessageType.ACTION_BAR, new ComponentBuilder("§e" + v + "s §8[§a■■■■■§c■■■■■§8]").create());
+                        s.sendMessage(ACTION_BAR, new ComponentBuilder("§e" + v + "s §8[§a■■■■■§c■■■■■§8]").create());
                     else if (v >= 2.0)
-                        s.sendMessage(ChatMessageType.ACTION_BAR, new ComponentBuilder("§e" + v + "s §8[§a■■■■■■§c■■■■§8]").create());
+                        s.sendMessage(ACTION_BAR, new ComponentBuilder("§e" + v + "s §8[§a■■■■■■§c■■■■§8]").create());
                     else if (v >= 1.5)
-                        s.sendMessage(ChatMessageType.ACTION_BAR, new ComponentBuilder("§e" + v + "s §8[§a■■■■■■■§c■■■§8]").create());
+                        s.sendMessage(ACTION_BAR, new ComponentBuilder("§e" + v + "s §8[§a■■■■■■■§c■■■§8]").create());
                     else if (v >= 1.0)
-                        s.sendMessage(ChatMessageType.ACTION_BAR, new ComponentBuilder("§e" + v + "s §8[§a■■■■■■■■§c■■§8]").create());
+                        s.sendMessage(ACTION_BAR, new ComponentBuilder("§e" + v + "s §8[§a■■■■■■■■§c■■§8]").create());
                     else if (v >= 0.5)
-                        s.sendMessage(ChatMessageType.ACTION_BAR, new ComponentBuilder("§e" + v + "s §8[§a■■■■■■■■■§c■§8]").create());
+                        s.sendMessage(ACTION_BAR, new ComponentBuilder("§e" + v + "s §8[§a■■■■■■■■■§c■§8]").create());
                     else
-                        s.sendMessage(ChatMessageType.ACTION_BAR, new ComponentBuilder("§e" + v + "s §8[§a■■■■■■■■■■§8]").create());
+                        s.sendMessage(ACTION_BAR, new ComponentBuilder("§e" + v + "s §8[§a■■■■■■■■■■§8]").create());
                     if (entry.getValue() <= 0) {
-                        s.sendMessage(ChatMessageType.ACTION_BAR, new ComponentBuilder("").create());
+                        s.sendMessage(ACTION_BAR, new ComponentBuilder("").create());
                         entry.getKey().getInventory().setItem(9, new ItemStack(Material.ARROW));
                         bowCooldown.remove(entry.getKey());
                     }

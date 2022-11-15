@@ -1,14 +1,12 @@
 package main.gamehandler;
 
 import main.Main;
-import main.datahandler.SpawnLocationData;
-import main.eventhandler.EventListener;
 import main.timerhandler.CountdownTimer;
 import net.minecraft.server.v1_12_R1.*;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.SoundCategory;
 import org.bukkit.World;
-import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_12_R1.scoreboard.CraftScoreboard;
 import org.bukkit.entity.ArmorStand;
@@ -23,8 +21,13 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-import static java.lang.String.*;
+import static java.lang.String.format;
 import static main.Main.*;
+import static main.datahandler.SpawnLocationData.getSpawnLocation;
+import static main.eventhandler.EventListener.*;
+import static main.eventhandler.EventListener.DeathCause.*;
+import static org.bukkit.Sound.BLOCK_NOTE_HAT;
+import static org.bukkit.SoundCategory.MASTER;
 
 public class MurderHandler {
     public enum BowType { DectectiveAlive, BowDrop, BowNotDrop }
@@ -40,14 +43,14 @@ public class MurderHandler {
     public static final List<Location> savedGoldBlock = new ArrayList<>();
     public static void startGame(@NotNull World w) {
         try {
-            if (Bukkit.getOnlinePlayers().size() < 2) {
+            if (SERVER.getOnlinePlayers().size() < 2) {
                 SERVER.broadcastMessage(INDEX + "§c플레이어 수가 너무 적어 게임이 시작되지 않았습니다.");
                 return;
-            } else if (SpawnLocationData.getSpawnLocation(Main.CURRENTMAP.getName()).isEmpty()) {
+            } else if (getSpawnLocation(Main.CURRENTMAP.getName()).isEmpty()) {
                 SERVER.broadcastMessage(INDEX + "§c지정된 스폰 위치가 없어 게임이 시작되지 않았습니다.");
                 return;
             } gameStarted = true;
-            innocentAlive = Bukkit.getOnlinePlayers().size() - 1;
+            innocentAlive = SERVER.getOnlinePlayers().size() - 1;
             for (int z = 166; z <= 187; z++)
                 for (int x = 103; x <= 134; x++)
                     for (int y = 80; y <= 98; y++) if (w.getBlockAt(x, y, z).getType().equals(Material.GOLD_BLOCK)) {
@@ -62,9 +65,9 @@ public class MurderHandler {
                 for (int x = 98; x <= 99; x++) w.getBlockAt(x, 97, z).setType(Material.AIR);
             for (int z = 174; z <= 178; z++)
                 for (int y = 90; y <= 95; y++) w.getBlockAt(96, y, z).setType(Material.AIR);
-            Location[] locations = new Location[SpawnLocationData.getSpawnLocation(Main.CURRENTMAP.getName()).size()];
+            Location[] locations = new Location[getSpawnLocation(Main.CURRENTMAP.getName()).size()];
             int l=0;
-            for (String s : SpawnLocationData.getSpawnLocation(Main.CURRENTMAP.getName())) {
+            for (String s : getSpawnLocation(Main.CURRENTMAP.getName())) {
                 final String[] parts = s.split(",");
                 locations[l] = new Location(Main.CURRENTMAP, Integer.parseInt(parts[0]), Integer.parseInt(parts[1]), Integer.parseInt(parts[2]));
                 l++;
@@ -75,14 +78,14 @@ public class MurderHandler {
                 locations[0] = locations[r];
                 locations[r] = tmp;
             } int n = 0;
-            Player[] players = new Player[Bukkit.getOnlinePlayers().size()];
-            ScoreboardTeam team = new ScoreboardTeam(((CraftScoreboard) Bukkit.getScoreboardManager().getMainScoreboard()).getHandle(), "");
+            Player[] players = new Player[SERVER.getOnlinePlayers().size()];
+            ScoreboardTeam team = new ScoreboardTeam(((CraftScoreboard) SCOREBOARD.getMainScoreboard()).getHandle(), "");
             team.setCollisionRule(ScoreboardTeamBase.EnumTeamPush.NEVER);
             team.setNameTagVisibility(ScoreboardTeamBase.EnumNameTagVisibility.NEVER);
             team.setCanSeeFriendlyInvisibles(false);
             ArrayList<String> playerToAdd = new ArrayList<>();
-            for (Player p : Bukkit.getOnlinePlayers()) playerToAdd.add(p.getName());
-            for (Player p : Bukkit.getOnlinePlayers()) {
+            for (Player p : SERVER.getOnlinePlayers()) playerToAdd.add(p.getName());
+            for (Player p : SERVER.getOnlinePlayers()) {
                 PlayerConnection connection = ((CraftPlayer) p).getHandle().playerConnection;
                 connection.sendPacket(new PacketPlayOutScoreboardTeam(team, 1));
                 connection.sendPacket(new PacketPlayOutScoreboardTeam(team, 0));
@@ -117,31 +120,31 @@ public class MurderHandler {
             bowM.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE);
             bow.setItemMeta(bowM);
             SCHEDULER.scheduleSyncDelayedTask(Main.getPlugin(Main.class), () -> {
-                Bukkit.broadcastMessage(INDEX + "§e살인자가 §b5§e초 후에 칼을 얻습니다!");
-                for (Player p : Bukkit.getOnlinePlayers()) p.playSound(p.getLocation(), Sound.BLOCK_NOTE_HAT, SoundCategory.MASTER, 100F, 1F);
+                SERVER.broadcastMessage(INDEX + "§e살인자가 §b5§e초 후에 칼을 얻습니다!");
+                for (Player p : SERVER.getOnlinePlayers()) p.playSound(p.getLocation(), BLOCK_NOTE_HAT, MASTER, 100F, 1F);
             }, 100L);
             SCHEDULER.scheduleSyncDelayedTask(Main.getPlugin(Main.class), () -> {
-                Bukkit.broadcastMessage(INDEX + "§e살인자가 §b4§e초 후에 칼을 얻습니다!");
-                for (Player p : Bukkit.getOnlinePlayers()) p.playSound(p.getLocation(), Sound.BLOCK_NOTE_HAT, SoundCategory.MASTER, 100F, 1F);
+                SERVER.broadcastMessage(INDEX + "§e살인자가 §b4§e초 후에 칼을 얻습니다!");
+                for (Player p : SERVER.getOnlinePlayers()) p.playSound(p.getLocation(), BLOCK_NOTE_HAT, MASTER, 100F, 1F);
             }, 120L);
             SCHEDULER.scheduleSyncDelayedTask(Main.getPlugin(Main.class), () -> {
-                Bukkit.broadcastMessage(INDEX + "§e살인자가 §b3§e초 후에 칼을 얻습니다!");
-                for (Player p : Bukkit.getOnlinePlayers()) p.playSound(p.getLocation(), Sound.BLOCK_NOTE_HAT, SoundCategory.MASTER, 100F, 1F);
+                SERVER.broadcastMessage(INDEX + "§e살인자가 §b3§e초 후에 칼을 얻습니다!");
+                for (Player p : SERVER.getOnlinePlayers()) p.playSound(p.getLocation(), BLOCK_NOTE_HAT, MASTER, 100F, 1F);
             }, 140L);
             SCHEDULER.scheduleSyncDelayedTask(Main.getPlugin(Main.class), () -> {
-                Bukkit.broadcastMessage(INDEX + "§e살인자가 §b2§e초 후에 칼을 얻습니다!");
-                for (Player p : Bukkit.getOnlinePlayers()) p.playSound(p.getLocation(), Sound.BLOCK_NOTE_HAT, SoundCategory.MASTER, 100F, 1F);
+                SERVER.broadcastMessage(INDEX + "§e살인자가 §b2§e초 후에 칼을 얻습니다!");
+                for (Player p : SERVER.getOnlinePlayers()) p.playSound(p.getLocation(), BLOCK_NOTE_HAT, MASTER, 100F, 1F);
             }, 160L);
             SCHEDULER.scheduleSyncDelayedTask(Main.getPlugin(Main.class), () -> {
-                Bukkit.broadcastMessage(INDEX + "§e살인자가 §b1§e초 후에 칼을 얻습니다!");
-                for (Player p : Bukkit.getOnlinePlayers()) p.playSound(p.getLocation(), Sound.BLOCK_NOTE_HAT, SoundCategory.MASTER, 100F, 1F);
+                SERVER.broadcastMessage(INDEX + "§e살인자가 §b1§e초 후에 칼을 얻습니다!");
+                for (Player p : SERVER.getOnlinePlayers()) p.playSound(p.getLocation(), BLOCK_NOTE_HAT, MASTER, 100F, 1F);
             }, 180L);
             SCHEDULER.scheduleSyncDelayedTask(Main.getPlugin(Main.class), () -> {
                 players[0].getInventory().setItem(1, knife);
                 players[1].getInventory().setItem(1, bow);
                 players[1].getInventory().setItem(9, new ItemStack(Material.ARROW));
-                Bukkit.broadcastMessage(INDEX + "§e살인자가 칼을 얻었습니다!");
-                for (Player p : Bukkit.getOnlinePlayers()) p.playSound(p.getLocation(), Sound.BLOCK_NOTE_HAT, SoundCategory.MASTER, 100F, 1F);
+                SERVER.broadcastMessage(INDEX + "§e살인자가 칼을 얻었습니다!");
+                for (Player p : SERVER.getOnlinePlayers()) p.playSound(p.getLocation(), BLOCK_NOTE_HAT, MASTER, 100F, 1F);
             }, 200L);
             for (int i = 2; i < players.length; i++) {
                 roleType.put(players[i], "§a시민");
@@ -151,7 +154,7 @@ public class MurderHandler {
             printException(e);
         }
     }
-    public static void stopGame(@NotNull World w, @NotNull Boolean innocentWin, @NotNull WinType winType, @Nullable EventListener.DeathCause murderDeathCause) {
+    public static void stopGame(@NotNull World w, @NotNull Boolean innocentWin, @NotNull WinType winType, @Nullable DeathCause murderDeathCause) {
         try {
             gameStarted = false;
             for (Location l : savedGoldBlock) w.getBlockAt(l).setType(Material.GOLD_BLOCK);
@@ -165,16 +168,16 @@ public class MurderHandler {
                 for (int y = 90; y <= 95; y++) w.getBlockAt(96, y, z).setType(Material.IRON_FENCE);
             w.getBlockAt(98, 98, 176).setType(Material.CAKE_BLOCK);
             String boarder = "§a--------------------------------------------------------------------------------";
-            Bukkit.broadcastMessage(boarder + "\n                                   §f§l머더 미스터리");
+            SERVER.broadcastMessage(boarder + "\n                                   §f§l머더 미스터리");
             if (innocentWin) {
-                Bukkit.broadcastMessage("\n                                   §f§l승자: §a플레이어");
-                for (Player p : Bukkit.getOnlinePlayers()) {
+                SERVER.broadcastMessage("\n                                   §f§l승자: §a플레이어");
+                for (Player p : SERVER.getOnlinePlayers()) {
                     if (p == murderer) {
                         if (winType.equals(WinType.MURDER_DIED)) {
                             if (murderDeathCause == null) p.sendTitle("§c패배했습니다!", "§e지정되지 않은 사망 사유입니다.", 0, 200, 0);
-                            else if (murderDeathCause.equals(EventListener.DeathCause.INNOCENT_SHOOT)) p.sendTitle("§c패배했습니다!", "§e당신은 사망했습니다!", 0, 200, 0);
-                            else if (murderDeathCause.equals(EventListener.DeathCause.DROWNED)) p.sendTitle("§c패배했습니다!", "§e당신은 익사했습니다!", 0, 200, 0);
-                            else if (murderDeathCause.equals(EventListener.DeathCause.PORTAL)) p.sendTitle("§c패배했습니다!", "§e당신은 포탈에 빠졌습니다!", 0, 200, 0);
+                            else if (murderDeathCause.equals(INNOCENT_SHOOT)) p.sendTitle("§c패배했습니다!", "§e당신은 사망했습니다!", 0, 200, 0);
+                            else if (murderDeathCause.equals(DROWNED)) p.sendTitle("§c패배했습니다!", "§e당신은 익사했습니다!", 0, 200, 0);
+                            else if (murderDeathCause.equals(PORTAL_FALL)) p.sendTitle("§c패배했습니다!", "§e당신은 포탈에 빠졌습니다!", 0, 200, 0);
                         }
                         else if (winType.equals(WinType.TIMED_OUT)) p.sendTitle("§c패배했습니다!", "§e시간이 다 되었습니다!", 0, 200, 0);
                     } else {
@@ -182,23 +185,23 @@ public class MurderHandler {
                     }
                 }
             } else {
-                Bukkit.broadcastMessage("\n                                   §f§l승자: §c살인자");
-                for (Player p : Bukkit.getOnlinePlayers()) {
+                SERVER.broadcastMessage("\n                                   §f§l승자: §c살인자");
+                for (Player p : SERVER.getOnlinePlayers()) {
                     if (p == murderer) p.sendTitle("§a승리했습니다!", "§e모든 플레이어를 처치했습니다!", 0, 200, 0);
                     else p.sendTitle("§c패배했습니다!", "§e모든 시민이 사망했습니다!", 0, 200, 0);
                 }
-            } if (bowType == BowType.DectectiveAlive) Bukkit.broadcastMessage(format("\n                                    §7탐정: %s%s", EventListener.rankColor.get(detective), detective.getName()));
-            else Bukkit.broadcastMessage(format("\n                                    §7탐정: %s§m%s", EventListener.rankColor.get(detective), detective.getName()));
-            if (innocentWin) Bukkit.broadcastMessage(format("                                §7살인자: %s%s§7 (§6%d§7 킬)", EventListener.rankColor.get(murderer), murderer.getName(), murderKills));
-            else Bukkit.broadcastMessage(format("                                     §7살인자: %s§m%s§7 (§6%d§7 킬)", EventListener.rankColor.get(murderer), murderer.getName(), murderKills));
-            if (heroName != null) Bukkit.broadcastMessage("                                    §7영웅: §f제작중");
-            Bukkit.broadcastMessage("\n" + boarder);
+            } if (bowType == BowType.DectectiveAlive) SERVER.broadcastMessage(format("\n                                    §7탐정: %s%s", rankColor.get(detective), detective.getName()));
+            else SERVER.broadcastMessage(format("\n                                    §7탐정: %s§m%s", rankColor.get(detective), detective.getName()));
+            if (innocentWin) SERVER.broadcastMessage(format("                                §7살인자: %s%s§7 (§6%d§7 킬)", rankColor.get(murderer), murderer.getName(), murderKills));
+            else SERVER.broadcastMessage(format("                                     §7살인자: %s§m%s§7 (§6%d§7 킬)", rankColor.get(murderer), murderer.getName(), murderKills));
+            if (heroName != null) SERVER.broadcastMessage("                                    §7영웅: §f제작중");
+            SERVER.broadcastMessage("\n" + boarder);
             CountdownTimer.setStartCountdown(70L);
             SCHEDULER.scheduleSyncDelayedTask(Main.getPlugin(Main.class), () -> {
                 murderer = null;
                 detective = null;
-                for (Player p : Bukkit.getOnlinePlayers()) {
-                    for (int i : EventListener.summonedNpcsId) ((CraftPlayer) p).getHandle().playerConnection.sendPacket(new PacketPlayOutEntityDestroy(i));
+                for (Player p : SERVER.getOnlinePlayers()) {
+                    for (int i : summonedNpcsId) ((CraftPlayer) p).getHandle().playerConnection.sendPacket(new PacketPlayOutEntityDestroy(i));
                     roleType.remove(p);
                     p.getInventory().clear();
                     p.setAllowFlight(false);
@@ -212,8 +215,8 @@ public class MurderHandler {
                     i.setItemMeta(im);
                     i.setData(new MaterialData(Material.BED));
                     p.getInventory().setItem(8, i);
-                    if (!EventListener.spinStandId.isEmpty()) {
-                        for (Map.Entry<ArmorStand, Integer> entry : EventListener.spinStandId.entrySet()) {
+                    if (!spinStandId.isEmpty()) {
+                        for (Map.Entry<ArmorStand, Integer> entry : spinStandId.entrySet()) {
                             entry.getKey().remove();
                             SCHEDULER.cancelTask(entry.getValue());
                         }

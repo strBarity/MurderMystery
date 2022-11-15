@@ -3,15 +3,11 @@ package main.eventhandler;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import main.Main;
-import main.datahandler.SpawnLocationData;
-import main.gamehandler.MurderHandler;
 import main.parsehandler.ItemParser;
-import main.timerhandler.CountdownTimer;
-import main.timerhandler.ExitTimer;
 import main.timerhandler.ItemCooldownTimer;
 import net.minecraft.server.v1_12_R1.*;
-import org.bukkit.Material;
-import org.bukkit.SoundCategory;
+import net.minecraft.server.v1_12_R1.ScoreboardTeamBase.EnumNameTagVisibility;
+import net.minecraft.server.v1_12_R1.ScoreboardTeamBase.EnumTeamPush;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.craftbukkit.v1_12_R1.CraftServer;
@@ -19,7 +15,6 @@ import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_12_R1.scoreboard.CraftScoreboard;
 import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -44,12 +39,25 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-import static java.lang.String.*;
+import static java.lang.Integer.MAX_VALUE;
+import static java.lang.String.format;
 import static main.Main.*;
+import static main.datahandler.SpawnLocationData.*;
+import static main.eventhandler.EventListener.DeathCause.*;
+import static main.gamehandler.MurderHandler.BowType.BowDrop;
+import static main.gamehandler.MurderHandler.BowType.BowNotDrop;
 import static main.gamehandler.MurderHandler.*;
+import static main.gamehandler.MurderHandler.WinType.*;
+import static main.timerhandler.CountdownTimer.*;
+import static main.timerhandler.ExitTimer.getExitTimer;
+import static org.bukkit.Material.*;
+import static org.bukkit.Sound.*;
+import static org.bukkit.SoundCategory.MASTER;
+import static org.bukkit.entity.EntityType.PLAYER;
+import static org.bukkit.event.entity.EntityDamageEvent.DamageCause.DROWNING;
 
 public class EventListener implements Listener {
-    public enum DeathCause {MURDER_KNIFE, MURDER_THROW, MURDER_SNIPE, INNOCENT_SNIPE, INNOCENT_SHOOT, DROWNED, PORTAL}
+    public enum DeathCause {MURDER_KNIFE, MURDER_THROW, MURDER_SNIPE, INNOCENT_SNIPE, INNOCENT_SHOOT, DROWNED, PORTAL_FALL}
     public static final ArrayList<String> onlineNameList = new ArrayList<>();
     public static final int startPlayerCount = 4;
     public static final List<Integer> summonedNpcsId = new ArrayList<>();
@@ -71,7 +79,7 @@ public class EventListener implements Listener {
     }
     public static void registerAntiOutMap(Player p) {
         try {
-            int i = SERVER.getScheduler().scheduleSyncRepeatingTask(Main.getPlugin(Main.class), () -> {
+            int i = SCHEDULER.scheduleSyncRepeatingTask(Main.getPlugin(Main.class), () -> {
                 Location l = p.getLocation();
                 if (l.getX() < 29 || l.getX() > 219 || l.getY() < 24 || l.getY() > 125 || l.getZ() < 22 || l.getZ() > 330) {
                     if (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))
@@ -79,7 +87,7 @@ public class EventListener implements Listener {
                     else {
                         p.kickPlayer(INDEX + "§4비정상적인 맵 탈출이 감지되었습니다.");
                     }
-                    if (Bukkit.getOnlinePlayers() != null) for (Player o : Bukkit.getOnlinePlayers()) {
+                    if (SERVER.getOnlinePlayers() != null) for (Player o : SERVER.getOnlinePlayers()) {
                         if (o.isOp())
                             o.sendMessage(format("%s%s§c님이 §6%s §c모드에서 맵 탈출을 시도했습니다.", INDEX, p.getName(), p.getGameMode().toString()));
                     }
@@ -91,31 +99,31 @@ public class EventListener implements Listener {
         }
     } public static void registerBoard(Player p) {
         try {
-            int i = SERVER.getScheduler().scheduleSyncRepeatingTask(Main.getPlugin(Main.class), () -> {
-                final Scoreboard board = Bukkit.getScoreboardManager().getNewScoreboard();
+            int i = SCHEDULER.scheduleSyncRepeatingTask(Main.getPlugin(Main.class), () -> {
+                final Scoreboard board = SCOREBOARD.getNewScoreboard();
                 final Objective objective = board.registerNewObjective("§e§l머더 미스터리", "dummy");
                 objective.setDisplaySlot(DisplaySlot.SIDEBAR);
                 Score t = objective.getScore("§7" + LocalDate.now().format(DateTimeFormatter.ofPattern("MM/dd/yy")) + "§8 Murder");
-                if (MurderHandler.gameStarted) {
+                if (gameStarted) {
                     t.setScore(11);
                     Score b1 = objective.getScore(" ");
                     b1.setScore(10);
-                    Score r = objective.getScore("§f역할: " + MurderHandler.roleType.get(p));
+                    Score r = objective.getScore("§f역할: " + roleType.get(p));
                     r.setScore(9);
                     Score b2 = objective.getScore("  ");
                     b2.setScore(8);
-                    Score in = objective.getScore(format("§f남은 시민: §a%d§f명", MurderHandler.innocentAlive));
+                    Score in = objective.getScore(format("§f남은 시민: §a%d§f명", innocentAlive));
                     in.setScore(7);
-                    Score ti = objective.getScore(format("§f남은 시간: §a%d:%d", CountdownTimer.getGameCountdownMin(), CountdownTimer.getGameCountdownSec()));
-                    if (CountdownTimer.getGameCountdownSec() < 10)
-                        ti = objective.getScore(format("§f남은 시간: §a%d:0%d", CountdownTimer.getGameCountdownMin(), CountdownTimer.getGameCountdownSec()));
+                    Score ti = objective.getScore(format("§f남은 시간: §a%d:%d", getGameCountdownMin(), getGameCountdownSec()));
+                    if (getGameCountdownSec() < 10)
+                        ti = objective.getScore(format("§f남은 시간: §a%d:0%d", getGameCountdownMin(), getGameCountdownSec()));
                     ti.setScore(6);
                     Score b3 = objective.getScore("   ");
                     b3.setScore(5);
                     Score b = objective.getScore("§f탐정: §a생존");
-                    if (MurderHandler.bowType == MurderHandler.BowType.BowDrop) {
+                    if (bowType == BowDrop) {
                         b = objective.getScore("§f활: §c떨어짐");
-                    } else if (MurderHandler.bowType == MurderHandler.BowType.BowNotDrop) {
+                    } else if (bowType == BowNotDrop) {
                         b = objective.getScore("§f활: §a떨어지지 않음");
                     }
                     b.setScore(4);
@@ -133,8 +141,8 @@ public class EventListener implements Listener {
                     l.setScore(6);
                     Score b2 = objective.getScore("  ");
                     b2.setScore(5);
-                    if (Bukkit.getOnlinePlayers().size() >= startPlayerCount) {
-                        Score s = objective.getScore(format("§a%d초 §f후 시작", CountdownTimer.getStartCountdown()));
+                    if (SERVER.getOnlinePlayers().size() >= startPlayerCount) {
+                        Score s = objective.getScore(format("§a%d초 §f후 시작", getStartCountdown()));
                         s.setScore(4);
                     } else {
                         Score s = objective.getScore("§f플레이어를 기다리는 중...");
@@ -159,11 +167,11 @@ public class EventListener implements Listener {
     public void onAttack(@NotNull EntityDamageByEntityEvent e) {
         try {
             e.setCancelled(true);
-            if (!e.getDamager().getType().equals(EntityType.PLAYER) || !e.getEntity().getType().equals(EntityType.PLAYER)) return;
+            if (!e.getDamager().getType().equals(PLAYER) || !e.getEntity().getType().equals(PLAYER)) return;
             Player attacker = (Player) e.getDamager();
             Player victim = (Player) e.getEntity();
             if (attacker.getInventory().getItemInMainHand() == null || attacker.getInventory().getItemInMainHand().getItemMeta() == null || attacker.getInventory().getItemInMainHand().getItemMeta().getDisplayName() == null) return;
-            if (murderer == e.getDamager() && (MurderHandler.roleType.get(victim).contains("시민") || MurderHandler.roleType.get(victim).contains("탐정")) && attacker.getInventory().getItemInMainHand().getItemMeta().getDisplayName().contains("칼")) playerDeath(victim, DeathCause.MURDER_KNIFE);
+            if (murderer == e.getDamager() && (roleType.get(victim).contains("시민") || roleType.get(victim).contains("탐정")) && attacker.getInventory().getItemInMainHand().getItemMeta().getDisplayName().contains("칼")) playerDeath(victim, MURDER_KNIFE);
             e.setCancelled(true);
         } catch (Exception exception) {
             printException(exception);
@@ -171,16 +179,16 @@ public class EventListener implements Listener {
     } @EventHandler(priority=EventPriority.HIGH)
     public void onSnipe(@NotNull ProjectileHitEvent e) {
         try {
-            if (e.getHitEntity() == null || !e.getHitEntity().getType().equals(EntityType.PLAYER)) return;
+            if (e.getHitEntity() == null || !e.getHitEntity().getType().equals(PLAYER)) return;
             Player attacker = (Player) e.getEntity().getShooter();
             Player victim = (Player) e.getHitEntity();
-            if (!MurderHandler.roleType.get(victim).contains("사망") || !MurderHandler.roleType.get(victim).contains("관전")) {
-                if (MurderHandler.roleType.get(victim).contains("시민")) {
-                    playerDeath(victim, DeathCause.INNOCENT_SNIPE);
-                    playerDeath(attacker, DeathCause.INNOCENT_SHOOT);
-                } else if (MurderHandler.roleType.get(victim).contains("살인자")) {
-                    playerDeath(victim, DeathCause.INNOCENT_SNIPE);
-                    MurderHandler.stopGame(CURRENTMAP, true, MurderHandler.WinType.MURDER_DIED, DeathCause.INNOCENT_SNIPE);
+            if (!roleType.get(victim).contains("사망") || !roleType.get(victim).contains("관전")) {
+                if (roleType.get(victim).contains("시민")) {
+                    playerDeath(victim, INNOCENT_SNIPE);
+                    playerDeath(attacker, INNOCENT_SHOOT);
+                } else if (roleType.get(victim).contains("살인자")) {
+                    playerDeath(victim, INNOCENT_SNIPE);
+                    stopGame(CURRENTMAP, true, MURDER_DIED, INNOCENT_SNIPE);
                 }
             }
         } catch (Exception exception) {
@@ -189,9 +197,9 @@ public class EventListener implements Listener {
     } @EventHandler
     public void onBowShoot(EntityShootBowEvent e) {
         try {
-            if (!e.getEntity().getType().equals(EntityType.PLAYER)) return;
+            if (!e.getEntity().getType().equals(PLAYER)) return;
             Player p = (Player) e.getEntity();
-            if (MurderHandler.roleType.get(p).contains("탐정")) {
+            if (roleType.get(p).contains("탐정")) {
                 ItemCooldownTimer.setBowCooldown(p, 5.0);
             }
         } catch (Exception exception) {
@@ -213,11 +221,11 @@ public class EventListener implements Listener {
             String name = e.getCurrentItem().getItemMeta().getDisplayName();
             if (name.contains("게임 나가기") || name.contains("칼") || name.equals("활")) {
                 if (name.contains("게임 나가기")) {
-                    if (ExitTimer.getExitTimer().containsKey(p)) {
-                        ExitTimer.getExitTimer().remove(p);
+                    if (getExitTimer().containsKey(p)) {
+                        getExitTimer().remove(p);
                         p.sendMessage(INDEX + "로비로 이동이 취소되었습니다.");
                     } else {
-                        ExitTimer.getExitTimer().put(p, 60);
+                        getExitTimer().put(p, 60);
                         p.sendMessage(INDEX + "§e3초 후에 로비로 이동합니다. 취소하려면 다시 우클릭하세요.");
                     }
                 }
@@ -239,34 +247,34 @@ public class EventListener implements Listener {
             e.setCancelled(true);
             if (ItemParser.isNotCustom(p.getInventory().getItemInMainHand())) return;
             if (e.getClickedBlock() != null) {
-                if (e.getClickedBlock().getType().equals(Material.CAKE_BLOCK)) {
-                    p.playSound(p.getLocation(), Sound.ENTITY_CHICKEN_EGG, SoundCategory.MASTER, 100, 1);
+                if (e.getClickedBlock().getType().equals(CAKE_BLOCK)) {
+                    p.playSound(p.getLocation(), ENTITY_CHICKEN_EGG, MASTER, 100, 1);
                     p.getWorld().spawnParticle(Particle.CRIT, 98.5, 98.5, 176.5, 10, 0.125, 0.125, 0.125, 3);
                 }
             } if (p.getInventory().getItemInMainHand().getItemMeta().getDisplayName().contains("게임 나가기")) {
-                if (ExitTimer.getExitTimer().containsKey(p)) {
-                    ExitTimer.getExitTimer().remove(p);
+                if (getExitTimer().containsKey(p)) {
+                    getExitTimer().remove(p);
                     p.sendMessage(INDEX + "로비로 이동이 취소되었습니다.");
                 } else {
-                    ExitTimer.getExitTimer().put(p, 60);
+                    getExitTimer().put(p, 60);
                     p.sendMessage(INDEX + "§e3초 후에 로비로 이동합니다. 취소하려면 다시 우클릭하세요.");
                 }
             } else if (p.getInventory().getItemInMainHand().getItemMeta().getDisplayName().contains("스폰 위치 설정 도구")) {
                 if (e.getAction().equals(Action.RIGHT_CLICK_AIR)) {
-                    SpawnLocationData.addSpawnLocation(p.getWorld().getName(), p.getLocation());
+                    addSpawnLocation(p.getWorld().getName(), p.getLocation());
                     p.sendMessage(format("%s%s §a맵에서 §2(§a%d§2, §a%d§2, §a%d§2)§a를 스폰 위치에 추가했습니다.", INDEX, p.getWorld().getName(), p.getLocation().getBlockX(), p.getLocation().getBlockY(), p.getLocation().getBlockZ()));
-                    p.playSound(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.MASTER, 0.75F, 1);
+                    p.playSound(p.getLocation(), ENTITY_EXPERIENCE_ORB_PICKUP, MASTER, 0.75F, 1);
                 } if (e.getAction().equals(Action.LEFT_CLICK_AIR)) {
                     boolean notRemoved = true;
                     for (int x = p.getLocation().getBlockX() - 2; x <= p.getLocation().getBlockX() + 2; x++) for (int y = p.getLocation().getBlockY() - 2; y <= p.getLocation().getBlockY() + 2; y++) for (int z = p.getLocation().getBlockZ() - 2; z <= p.getLocation().getBlockZ() + 2; z++) {
-                        for (String s : SpawnLocationData.getSpawnLocation(p.getWorld().getName())) {
-                            int[] i = SpawnLocationData.toSplitCoord(s);
+                        for (String s : getSpawnLocation(p.getWorld().getName())) {
+                            int[] i = toSplitCoord(s);
                             int x2 = i[0]; int y2 = i[1]; int z2 = i[2];
                             if (x == x2 && y == y2 && z == z2) {
                                 notRemoved = false;
-                                SpawnLocationData.removeSpawnLocation(p.getWorld().getName(), new Location(p.getWorld(), x2, y2, z2));
+                                removeSpawnLocation(p.getWorld().getName(), new Location(p.getWorld(), x2, y2, z2));
                                 p.sendMessage(format("%s%s §e맵에서 §2(§a%d§2, §a%d§2, §a%d§2)§e에 있는 스폰 위치를 제거했습니다.", INDEX, p.getWorld().getName(), x2, y2, z2));
-                                p.playSound(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.MASTER, 0.75F, 0);
+                                p.playSound(p.getLocation(), ENTITY_EXPERIENCE_ORB_PICKUP, MASTER, 0.75F, 0);
                             }
                         }
                     } if (notRemoved) p.sendMessage(INDEX + "§c제거할 스폰 위치가 근처에 없습니다.");
@@ -295,11 +303,11 @@ public class EventListener implements Listener {
                 rankType.put(p, "§b[MVP§c+§b] ");
                 rankColor.put(p, ChatColor.AQUA);
                 p.setPlayerListName("§b[MVP§c+§b] " + p.getName() + " ");
-                e.setJoinMessage(format("%s§b누군가...?§e가 참여했습니다. (§b%d§e/§b32§e)", INDEX, Bukkit.getOnlinePlayers().size()));
-                for (Player o : Bukkit.getOnlinePlayers()) o.playSound(o.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.MASTER, 100, 1);
+                e.setJoinMessage(format("%s§b누군가...?§e가 참여했습니다. (§b%d§e/§b32§e)", INDEX, SERVER.getOnlinePlayers().size()));
+                for (Player o : SERVER.getOnlinePlayers()) o.playSound(o.getLocation(), ENTITY_EXPERIENCE_ORB_PICKUP, MASTER, 100, 1);
                 SCHEDULER.scheduleSyncDelayedTask(Main.getPlugin(Main.class), () -> {
                     SERVER.broadcastMessage(INDEX + "§c키가 너무 작아서 이름이 안보여요... 죄송합니다");
-                    for (Player o : Bukkit.getOnlinePlayers()) o.playSound(o.getLocation(), Sound.BLOCK_ANVIL_LAND, SoundCategory.MASTER, 100, 1);
+                    for (Player o : SERVER.getOnlinePlayers()) o.playSound(o.getLocation(), BLOCK_ANVIL_LAND, MASTER, 100, 1);
                 }, 60L);
             } else {
                 if (p.isOp()) {
@@ -311,27 +319,27 @@ public class EventListener implements Listener {
                     rankColor.put(p, ChatColor.GREEN);
                     p.setPlayerListName("§a[VIP] " + p.getName() + " ");
                 }
-            } if (MurderHandler.gameStarted) {
+            } if (gameStarted) {
                 p.setGameMode(GameMode.SPECTATOR);
                 e.setJoinMessage(null);
                 p.setAllowFlight(true);
-                p.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 0), true);
-                MurderHandler.roleType.put(p, "§8관전자");
+                p.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, MAX_VALUE, 0), true);
+                roleType.put(p, "§8관전자");
             } else {
-                ItemStack i = new ItemStack(Material.BED, 1, (short) 14);
+                ItemStack i = new ItemStack(BED, 1, (short) 14);
                 ItemMeta im = i.getItemMeta();
                 im.setDisplayName("§c게임 나가기 §7(우클릭)");
                 im.setLore(Arrays.asList("§a우클릭 시 3초 후 로비로 돌아갑니다.", "§7다시 우클릭을 누르면 취소됩니다.", "", "§e클릭해서 로비로 돌아가기"));
                 i.setItemMeta(im);
-                i.setData(new MaterialData(Material.BED));
+                i.setData(new MaterialData(BED));
                 p.getInventory().setItem(8, i);
-                if (!p.getUniqueId().toString().equals("604d2144-5577-4330-a2b4-dbe04e3b9cc3")) e.setJoinMessage(INDEX + rankColor.get(p) + p.getName() + "§e님이 참여했습니다! (§b" + Bukkit.getOnlinePlayers().size() + "§e/§b32§e)");
-                p.playSound(p.getLocation(), Sound.BLOCK_NOTE_HAT, SoundCategory.MASTER, 100, 1);
+                if (!p.getUniqueId().toString().equals("604d2144-5577-4330-a2b4-dbe04e3b9cc3")) e.setJoinMessage(INDEX + rankColor.get(p) + p.getName() + "§e님이 참여했습니다! (§b" + SERVER.getOnlinePlayers().size() + "§e/§b32§e)");
+                p.playSound(p.getLocation(), BLOCK_NOTE_HAT, MASTER, 100, 1);
             } p.getAttribute(Attribute.GENERIC_ATTACK_SPEED).setBaseValue(Double.MAX_VALUE);
             registerBoard(p);
             registerAntiOutMap(p);
             mainScoreboardSet(p);
-            SpawnLocationData.registerSLWand(p);
+            registerSLWand(p);
         } catch (Exception exception) {
             printException(exception);
         }
@@ -339,11 +347,11 @@ public class EventListener implements Listener {
     public void onQuit(@NotNull PlayerQuitEvent e) {
         try {
             Player p = e.getPlayer();
-            if (MurderHandler.gameStarted) e.setQuitMessage(null);
-            else e.setQuitMessage(format("%s%s%s§e님이 나갔습니다! (§b%d§e/§b32§e)", INDEX, rankColor.get(p), p.getName(), Bukkit.getOnlinePlayers().size() - 1));
+            if (gameStarted) e.setQuitMessage(null);
+            else e.setQuitMessage(format("%s%s%s§e님이 나갔습니다! (§b%d§e/§b32§e)", INDEX, rankColor.get(p), p.getName(), SERVER.getOnlinePlayers().size() - 1));
             SCHEDULER.cancelTask(boardId.get(e.getPlayer()));
             SCHEDULER.cancelTask(antiOutMapId.get(e.getPlayer()));
-            SCHEDULER.cancelTask(SpawnLocationData.slWandId.get(e.getPlayer()));
+            SCHEDULER.cancelTask(slWandId.get(e.getPlayer()));
         } catch (Exception exception) {
             printException(exception);
         }
@@ -357,16 +365,16 @@ public class EventListener implements Listener {
     } @EventHandler
     public void onDamage(@NotNull EntityDamageEvent e) {
         try {
-            if (e.getEntity().getType().equals(EntityType.PLAYER)) {
+            if (e.getEntity().getType().equals(PLAYER)) {
                 e.setCancelled(true);
                 Player p = (Player) e.getEntity();
                 p.setHealth(p.getHealthScale());
                 if (p.getFireTicks() > 0) p.setFireTicks(0);
-                if (e.getCause().equals(EntityDamageEvent.DamageCause.DROWNING)) {
+                if (e.getCause().equals(DROWNING)) {
                     if (p == murderer) {
-                        playerDeath(p, DeathCause.DROWNED);
-                        MurderHandler.stopGame(CURRENTMAP, true, MurderHandler.WinType.MURDER_DIED, DeathCause.DROWNED);
-                    } else playerDeath(p, DeathCause.DROWNED);
+                        playerDeath(p, DROWNED);
+                        stopGame(CURRENTMAP, true, MURDER_DIED, DROWNED);
+                    } else playerDeath(p, DROWNED);
                 }
             }
         } catch (Exception exception) {
@@ -384,11 +392,11 @@ public class EventListener implements Listener {
     }
     public static void mainScoreboardSet(@NotNull Player p) {
         try {
-            ScoreboardTeam team = new ScoreboardTeam(((CraftScoreboard) Bukkit.getScoreboardManager().getMainScoreboard()).getHandle(), p.getName());
-            team.setCollisionRule(ScoreboardTeamBase.EnumTeamPush.NEVER);
-            team.setNameTagVisibility(ScoreboardTeamBase.EnumNameTagVisibility.NEVER);
+            ScoreboardTeam team = new ScoreboardTeam(((CraftScoreboard) SCOREBOARD.getMainScoreboard()).getHandle(), p.getName());
+            team.setCollisionRule(EnumTeamPush.NEVER);
+            team.setNameTagVisibility(EnumNameTagVisibility.NEVER);
             team.setCanSeeFriendlyInvisibles(false);
-            for (Player player : Bukkit.getOnlinePlayers()) {
+            for (Player player : SERVER.getOnlinePlayers()) {
                 PlayerConnection connection = ((CraftPlayer) player).getHandle().playerConnection;
                 connection.sendPacket(new PacketPlayOutScoreboardTeam(team, 1));
                 connection.sendPacket(new PacketPlayOutScoreboardTeam(team, 0));
@@ -400,25 +408,25 @@ public class EventListener implements Listener {
     }
     public void playerDeath(Player victim, DeathCause deathCause) {
         try {
-            MurderHandler.roleType.put(victim, "§7사망");
+            roleType.put(victim, "§7사망");
             victim.setGameMode(GameMode.SPECTATOR);
             String subtitle = null;
             if (victim != murderer) {
-                if (deathCause.equals(DeathCause.MURDER_KNIFE)) subtitle = "§e살인자가 당신을 찔렀습니다!";
-                else if (deathCause.equals(DeathCause.MURDER_THROW)) subtitle = "§e살인자가 칼을 당신에게 던졌습니다";
-                else if (deathCause.equals(DeathCause.MURDER_SNIPE)) subtitle = "§e살인자가 쏜 활에 맞았습니다!";
-                else if (deathCause.equals(DeathCause.INNOCENT_SNIPE)) subtitle = "§e시민이 쏜 활에 맞았습니다!";
-                else if (deathCause.equals(DeathCause.INNOCENT_SHOOT)) subtitle = "§e당신은 시민을 쐈습니다!";
-                else if (deathCause.equals(DeathCause.DROWNED)) subtitle = "§e당신은 익사했습니다!";
-                else if (deathCause.equals(DeathCause.PORTAL)) subtitle = "§e당신은 포탈에 빠졌습니다!";
+                if (deathCause.equals(MURDER_KNIFE)) subtitle = "§e살인자가 당신을 찔렀습니다!";
+                else if (deathCause.equals(MURDER_THROW)) subtitle = "§e살인자가 칼을 당신에게 던졌습니다";
+                else if (deathCause.equals(MURDER_SNIPE)) subtitle = "§e살인자가 쏜 활에 맞았습니다!";
+                else if (deathCause.equals(INNOCENT_SNIPE)) subtitle = "§e시민이 쏜 활에 맞았습니다!";
+                else if (deathCause.equals(INNOCENT_SHOOT)) subtitle = "§e당신은 시민을 쐈습니다!";
+                else if (deathCause.equals(DROWNED)) subtitle = "§e당신은 익사했습니다!";
+                else if (deathCause.equals(PORTAL_FALL)) subtitle = "§e당신은 포탈에 빠졌습니다!";
                 victim.sendTitle("§c죽었습니다!", subtitle, 0, 100, 20);
                 victim.sendMessage(INDEX + "§c죽었습니다! §e이제부터 관전자 상태입니다.");
-                MurderHandler.innocentAlive--;
-                MurderHandler.murderKills++;
+                innocentAlive--;
+                murderKills++;
             } if (victim == detective && innocentAlive > 0) {
-                bowType = BowType.BowDrop;
-                Bukkit.broadcastMessage(INDEX + "§6활이 떨어졌습니다! §e활을 찾아 살인자를 처치할 기회를 포착하세요.");
-                for (Player p : Bukkit.getOnlinePlayers()) p.sendTitle("", "§6활이 떨어졌습니다!", 0, 100, 0);
+                bowType = BowDrop;
+                SERVER.broadcastMessage(INDEX + "§6활이 떨어졌습니다! §e활을 찾아 살인자를 처치할 기회를 포착하세요.");
+                for (Player p : SERVER.getOnlinePlayers()) p.sendTitle("", "§6활이 떨어졌습니다!", 0, 100, 0);
                 Location l = victim.getLocation();
                 ArmorStand a = CURRENTMAP.spawn(new Location(victim.getWorld(), l.getX(), l.getY()+0.5, l.getZ()), ArmorStand.class);
                 a.setGravity(false);
@@ -426,13 +434,13 @@ public class EventListener implements Listener {
                 a.setArms(true);
                 a.setVisible(false);
                 a.setMarker(true);
-                a.setItemInHand(new ItemStack(Material.BOW));
+                a.setItemInHand(new ItemStack(BOW));
                 a.setRightArmPose(new EulerAngle(45, 0, 0));
                 registerArmorstandSpin(a);
-            } for (Player p : Bukkit.getOnlinePlayers())
-                p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_HURT, SoundCategory.MASTER, 100F, 1F);
+            } for (Player p : SERVER.getOnlinePlayers())
+                p.playSound(p.getLocation(), ENTITY_PLAYER_HURT, MASTER, 100F, 1F);
             victim.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 60, 0), true);
-            victim.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 0), true);
+            victim.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, MAX_VALUE, 0), true);
             victim.setAllowFlight(true);
             victim.getInventory().clear();
             int i1 = 0;
@@ -470,15 +478,15 @@ public class EventListener implements Listener {
             final int x = i1;
             final int z = i2;
             Location l = victim.getLocation();
-            for (Player player : Bukkit.getOnlinePlayers()) {
+            for (Player player : SERVER.getOnlinePlayers()) {
                 CraftPlayer c = (CraftPlayer) victim;
                 Property property = c.getProfile().getProperties().get("textures").iterator().next();
                 MinecraftServer server = ((CraftServer) Bukkit.getServer()).getServer();
                 WorldServer world = ((CraftWorld) Bukkit.getWorlds().get(0)).getHandle();
                 EntityPlayer npc = new EntityPlayer(server, world, new GameProfile(UUID.randomUUID(), ""), new PlayerInteractManager(world));
-                ScoreboardTeam team = new ScoreboardTeam(((CraftScoreboard) Bukkit.getScoreboardManager().getMainScoreboard()).getHandle(), victim.getName());
-                team.setNameTagVisibility(ScoreboardTeamBase.EnumNameTagVisibility.NEVER);
-                team.setCollisionRule(ScoreboardTeamBase.EnumTeamPush.NEVER);
+                ScoreboardTeam team = new ScoreboardTeam(((CraftScoreboard) SCOREBOARD.getMainScoreboard()).getHandle(), victim.getName());
+                team.setNameTagVisibility(EnumNameTagVisibility.NEVER);
+                team.setCollisionRule(EnumTeamPush.NEVER);
                 npc.getProfile().getProperties().removeAll("textures");
                 npc.getProfile().getProperties().put("textures", new Property("textures", property.getValue(), property.getSignature()));
                 npc.getDataWatcher().set(new DataWatcherObject<>(13, DataWatcherRegistry.a), (byte) 0xFF);
@@ -500,8 +508,8 @@ public class EventListener implements Listener {
                     connection.sendPacket(new PacketPlayOutEntityTeleport(npc));
                 }, 1L);
             }
-            if (MurderHandler.innocentAlive == 0)
-                MurderHandler.stopGame(CURRENTMAP, false, MurderHandler.WinType.INNOCENT_ALL_DIED, null);
+            if (innocentAlive == 0)
+                stopGame(CURRENTMAP, false, INNOCENT_ALL_DIED, null);
         } catch (Exception exception) {
             printException(exception);
         }
