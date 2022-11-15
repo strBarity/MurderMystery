@@ -102,9 +102,9 @@ public final class Main extends JavaPlugin {
         }
     }
     public static void printException(@NotNull Exception e) {
-        s.broadcastMessage(Main.INDEX + "§6" + Thread.currentThread().getStackTrace()[2].getClassName() + "." + Thread.currentThread().getStackTrace()[2].getMethodName() + "()§c에서 오류가 발생했습니다.");
-        if (e.getMessage() != null) s.broadcastMessage(Main.INDEX + "§4" + e.getClass().getName() + ": §c" + e.getMessage());
-        else s.broadcastMessage(Main.INDEX + "§4" + e.getClass().getName() + ": §c알 수 없는 오류");
+        s.broadcastMessage(String.format("%s§6%s.%s()§c에서 오류가 발생했습니다.", Main.INDEX, Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()));
+        if (e.getMessage() != null) s.broadcastMessage(String.format("%s§4%s: §c%s", Main.INDEX, e.getClass().getName(), e.getMessage()));
+        else s.broadcastMessage(String.format("%s§4%s: §c알 수 없는 오류", Main.INDEX, e.getClass().getName()));
         e.printStackTrace();
     }
 }
