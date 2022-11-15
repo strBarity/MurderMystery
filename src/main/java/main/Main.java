@@ -14,6 +14,7 @@ import net.minecraft.server.v1_12_R1.PacketPlayOutEntityDestroy;
 import net.minecraft.server.v1_12_R1.ScoreboardTeam;
 import net.minecraft.server.v1_12_R1.ScoreboardTeamBase;
 import org.bukkit.*;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_12_R1.scoreboard.CraftScoreboard;
 import org.bukkit.entity.Player;
@@ -29,6 +30,7 @@ public final class Main extends JavaPlugin {
     public static final World CURRENTMAP = Bukkit.getWorld("archives");
     public static final Server SERVER = Bukkit.getServer();
     public static final BukkitScheduler SCHEDULER = Bukkit.getScheduler();
+    public static final ConsoleCommandSender LOGGER = Bukkit.getConsoleSender();
     public static final String INDEX = "§f[§cMurder§f] ";
     @Override
     public void onEnable() {
@@ -37,7 +39,7 @@ public final class Main extends JavaPlugin {
             UserLanguageData.loadData();
             TranslateHandler.initialize();
             Bukkit.getPluginManager().registerEvents(new EventListener(), this); /* 이벤트 리스너 등록 */
-            Bukkit.getConsoleSender().sendMessage(INDEX + "§a플러그인이 활성화되었습니다."); /* 플러그인 활성화 메시지 전송 */
+            LOGGER.sendMessage(INDEX + "§a플러그인이 활성화되었습니다."); /* 플러그인 활성화 메시지 전송 */
             SCHEDULER.scheduleSyncRepeatingTask(this, new CountdownTimer(), 0L, 20L); /* 타이머 등록 & 시작 */
             SCHEDULER.scheduleSyncRepeatingTask(this, new ExitTimer(), 0L, 1L); /* 타이머 등록 & 시작 */
             SCHEDULER.scheduleSyncRepeatingTask(this, new CMDCooldownTimer(), 0L, 20L); /* 타이머 등록 & 시작 */
@@ -98,7 +100,7 @@ public final class Main extends JavaPlugin {
                 for (Player p : Bukkit.getOnlinePlayers())
                     for (int i : EventListener.summonedNpcsId)
                         ((CraftPlayer) p).getHandle().playerConnection.sendPacket(new PacketPlayOutEntityDestroy(i));
-            Bukkit.getConsoleSender().sendMessage(INDEX + "§c플러그인이 비활성화되었습니다."); /* 플러그인 비활성화 메시지 전송 */
+            LOGGER.sendMessage(INDEX + "§c플러그인이 비활성화되었습니다."); /* 플러그인 비활성화 메시지 전송 */
         } catch (Exception e) {
             printException(e);
         }
