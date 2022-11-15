@@ -76,11 +76,11 @@ public class EventListener implements Listener {
                     if (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))
                         p.teleport(new Location(p.getWorld(), 104.5, 88.0, 176.5, 90F, 0F));
                     else {
-                        p.kickPlayer(Main.INDEX + "§4비정상적인 맵 탈출이 감지되었습니다.");
+                        p.kickPlayer(INDEX + "§4비정상적인 맵 탈출이 감지되었습니다.");
                     }
                     if (Bukkit.getOnlinePlayers() != null) for (Player o : Bukkit.getOnlinePlayers()) {
                         if (o.isOp())
-                            o.sendMessage(Main.INDEX + p.getName() + "§c님이 §6" + p.getGameMode().toString() + " §c모드에서 맵 탈출을 시도했습니다.");
+                            o.sendMessage(String.format("%s%s§c님이 §6%s §c모드에서 맵 탈출을 시도했습니다.", INDEX, p.getName(), p.getGameMode().toString()));
                     }
                 }
             }, 0, 1L);
@@ -103,11 +103,11 @@ public class EventListener implements Listener {
                     r.setScore(9);
                     Score b2 = objective.getScore("  ");
                     b2.setScore(8);
-                    Score in = objective.getScore("§f남은 시민: §a" + MurderHandler.innocentAlive + "§f명");
+                    Score in = objective.getScore(String.format("§f남은 시민: §a%d§f명", MurderHandler.innocentAlive));
                     in.setScore(7);
-                    Score ti = objective.getScore("§f남은 시간: §a" + CountdownTimer.getGameCountdownMin() + ":" + CountdownTimer.getGameCountdownSec());
+                    Score ti = objective.getScore(String.format("§f남은 시간: §a%d:%d", CountdownTimer.getGameCountdownMin(), CountdownTimer.getGameCountdownSec()));
                     if (CountdownTimer.getGameCountdownSec() < 10)
-                        ti = objective.getScore("§f남은 시간: §a" + CountdownTimer.getGameCountdownMin() + ":0" + CountdownTimer.getGameCountdownSec());
+                        ti = objective.getScore(String.format("§f남은 시간: §a%d:0%d", CountdownTimer.getGameCountdownMin(), CountdownTimer.getGameCountdownSec()));
                     ti.setScore(6);
                     Score b3 = objective.getScore("   ");
                     b3.setScore(5);
@@ -128,12 +128,12 @@ public class EventListener implements Listener {
                     b1.setScore(8);
                     Score m = objective.getScore("§f맵: §a" + p.getWorld().getName());
                     m.setScore(7);
-                    Score l = objective.getScore("§f플레이어: §a" + s.getOnlinePlayers().size() + "/32");
+                    Score l = objective.getScore(String.format("§f플레이어: §a%d/32", s.getOnlinePlayers().size()));
                     l.setScore(6);
                     Score b2 = objective.getScore("  ");
                     b2.setScore(5);
                     if (Bukkit.getOnlinePlayers().size() >= startPlayerCount) {
-                        Score s = objective.getScore("§a" + CountdownTimer.startCountdown + "초 §f후 시작");
+                        Score s = objective.getScore(String.format("§a%d초 §f후 시작", CountdownTimer.startCountdown));
                         s.setScore(4);
                     } else {
                         Score s = objective.getScore("§f플레이어를 기다리는 중...");
@@ -214,10 +214,10 @@ public class EventListener implements Listener {
                 if (name.contains("게임 나가기")) {
                     if (ExitTimer.getExitTimer().containsKey(p)) {
                         ExitTimer.getExitTimer().remove(p);
-                        p.sendMessage(Main.INDEX + "로비로 이동이 취소되었습니다.");
+                        p.sendMessage(INDEX + "로비로 이동이 취소되었습니다.");
                     } else {
                         ExitTimer.getExitTimer().put(p, 60);
-                        p.sendMessage(Main.INDEX + "§e3초 후에 로비로 이동합니다. 취소하려면 다시 우클릭하세요.");
+                        p.sendMessage(INDEX + "§e3초 후에 로비로 이동합니다. 취소하려면 다시 우클릭하세요.");
                     }
                 }
             }
@@ -245,15 +245,15 @@ public class EventListener implements Listener {
             } if (p.getInventory().getItemInMainHand().getItemMeta().getDisplayName().contains("게임 나가기")) {
                 if (ExitTimer.getExitTimer().containsKey(p)) {
                     ExitTimer.getExitTimer().remove(p);
-                    p.sendMessage(Main.INDEX + "로비로 이동이 취소되었습니다.");
+                    p.sendMessage(INDEX + "로비로 이동이 취소되었습니다.");
                 } else {
                     ExitTimer.getExitTimer().put(p, 60);
-                    p.sendMessage(Main.INDEX + "§e3초 후에 로비로 이동합니다. 취소하려면 다시 우클릭하세요.");
+                    p.sendMessage(INDEX + "§e3초 후에 로비로 이동합니다. 취소하려면 다시 우클릭하세요.");
                 }
             } else if (p.getInventory().getItemInMainHand().getItemMeta().getDisplayName().contains("스폰 위치 설정 도구")) {
                 if (e.getAction().equals(Action.RIGHT_CLICK_AIR)) {
                     SpawnLocationData.addSpawnLocation(p.getWorld().getName(), p.getLocation());
-                    p.sendMessage(Main.INDEX + p.getWorld().getName() + " §a맵에서 §2(§a" + p.getLocation().getBlockX() + "§2, §a" + p.getLocation().getBlockY() + "§2, §a" + p.getLocation().getBlockZ() + "§2)§a를 스폰 위치에 추가했습니다.");
+                    p.sendMessage(String.format("%s%s §a맵에서 §2(§a%d§2, §a%d§2, §a%d§2)§a를 스폰 위치에 추가했습니다.", INDEX, p.getWorld().getName(), p.getLocation().getBlockX(), p.getLocation().getBlockY(), p.getLocation().getBlockZ()));
                     p.playSound(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.MASTER, 0.75F, 1);
                 } if (e.getAction().equals(Action.LEFT_CLICK_AIR)) {
                     boolean notRemoved = true;
@@ -264,11 +264,11 @@ public class EventListener implements Listener {
                             if (x == x2 && y == y2 && z == z2) {
                                 notRemoved = false;
                                 SpawnLocationData.removeSpawnLocation(p.getWorld().getName(), new Location(p.getWorld(), x2, y2, z2));
-                                p.sendMessage(Main.INDEX + p.getWorld().getName() + " §e맵에서 §2(§a" + x2 + "§2, §a" + y2 + "§2, §a" + z2 + "§2)§e에 있는 스폰 위치를 제거했습니다.");
+                                p.sendMessage(String.format("%s%s §e맵에서 §2(§a%d§2, §a%d§2, §a%d§2)§e에 있는 스폰 위치를 제거했습니다.", INDEX, p.getWorld().getName(), x2, y2, z2));
                                 p.playSound(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.MASTER, 0.75F, 0);
                             }
                         }
-                    } if (notRemoved) p.sendMessage(Main.INDEX + "§c제거할 스폰 위치가 근처에 없습니다.");
+                    } if (notRemoved) p.sendMessage(INDEX + "§c제거할 스폰 위치가 근처에 없습니다.");
                 }
             }
         } catch (Exception exception) {
@@ -294,10 +294,10 @@ public class EventListener implements Listener {
                 rankType.put(p, "§b[MVP§c+§b] ");
                 rankColor.put(p, ChatColor.AQUA);
                 p.setPlayerListName("§b[MVP§c+§b] " + p.getName() + " ");
-                e.setJoinMessage(Main.INDEX + "§b누군가...?§e가 참여했습니다. (§b" + Bukkit.getOnlinePlayers().size() + "§e/§b32§e)");
+                e.setJoinMessage(String.format("%s§b누군가...?§e가 참여했습니다. (§b%d§e/§b32§e)", INDEX, Bukkit.getOnlinePlayers().size()));
                 for (Player o : Bukkit.getOnlinePlayers()) o.playSound(o.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.MASTER, 100, 1);
                 sc.scheduleSyncDelayedTask(Main.getPlugin(Main.class), () -> {
-                    s.broadcastMessage(Main.INDEX + "§c키가 너무 작아서 이름이 안보여요... 죄송합니다");
+                    s.broadcastMessage(INDEX + "§c키가 너무 작아서 이름이 안보여요... 죄송합니다");
                     for (Player o : Bukkit.getOnlinePlayers()) o.playSound(o.getLocation(), Sound.BLOCK_ANVIL_LAND, SoundCategory.MASTER, 100, 1);
                 }, 60L);
             } else {
@@ -324,7 +324,7 @@ public class EventListener implements Listener {
                 i.setItemMeta(im);
                 i.setData(new MaterialData(Material.BED));
                 p.getInventory().setItem(8, i);
-                if (!p.getUniqueId().toString().equals("604d2144-5577-4330-a2b4-dbe04e3b9cc3")) e.setJoinMessage(Main.INDEX + rankColor.get(p) + p.getName() + "§e님이 참여했습니다! (§b" + Bukkit.getOnlinePlayers().size() + "§e/§b32§e)");
+                if (!p.getUniqueId().toString().equals("604d2144-5577-4330-a2b4-dbe04e3b9cc3")) e.setJoinMessage(INDEX + rankColor.get(p) + p.getName() + "§e님이 참여했습니다! (§b" + Bukkit.getOnlinePlayers().size() + "§e/§b32§e)");
                 p.playSound(p.getLocation(), Sound.BLOCK_NOTE_HAT, SoundCategory.MASTER, 100, 1);
             } p.getAttribute(Attribute.GENERIC_ATTACK_SPEED).setBaseValue(Double.MAX_VALUE);
             registerBoard(p);
@@ -339,7 +339,7 @@ public class EventListener implements Listener {
         try {
             Player p = e.getPlayer();
             if (MurderHandler.gameStarted) e.setQuitMessage(null);
-            else e.setQuitMessage(Main.INDEX + rankColor.get(p) + p.getName() + "§e님이 나갔습니다! (§b" + (Bukkit.getOnlinePlayers().size() - 1) + "§e/§b32§e)");
+            else e.setQuitMessage(String.format("%s%s%s§e님이 나갔습니다! (§b%d§e/§b32§e)", INDEX, rankColor.get(p), p.getName(), Bukkit.getOnlinePlayers().size() - 1));
             sc.cancelTask(boardId.get(e.getPlayer()));
             sc.cancelTask(antiOutMapId.get(e.getPlayer()));
             sc.cancelTask(SpawnLocationData.slWandId.get(e.getPlayer()));
@@ -349,7 +349,7 @@ public class EventListener implements Listener {
     } @EventHandler
     public void onChat(@NotNull AsyncPlayerChatEvent e) {
         try {
-            e.setFormat(rankType.get(e.getPlayer()) + e.getPlayer().getName() + "§7: §f" + e.getMessage());
+            e.setFormat(String.format("%s%s§7: §f%s", rankType.get(e.getPlayer()), e.getPlayer().getName(), e.getMessage()));
         } catch (Exception exception) {
             printException(exception);
         }
