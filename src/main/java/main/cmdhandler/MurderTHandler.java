@@ -48,7 +48,7 @@ public class MurderTHandler {
                             p.sendMessage(Main.INDEX + "§a우클릭해서 자신의 위치에 스폰 위치를 생성합니다.\n" + Main.INDEX + "§a좌클릭해서 근처의 스폰 위치를 제거합니다.");
                             break;
                         case "list":
-                            TextComponent m = new TextComponent(Main.INDEX + "§9------------[ §b현재 맵 스폰 위치 목록 §9]------------\n" + Main.INDEX + "§9맵: §b" + p.getWorld().getName() + " §f| §9스폰 위치 갯수: §b" + SpawnLocationData.getSpawnLocation(p.getWorld().getName()).size() + "/100§9개 §f| ");
+                            TextComponent m = new TextComponent(String.format("%s§9------------[ §b현재 맵 스폰 위치 목록 §9]------------\n%s§9맵: §b%s §f| §9스폰 위치 갯수: §b%d/100§9개 §f| ", Main.INDEX, Main.INDEX, p.getWorld().getName(), SpawnLocationData.getSpawnLocation(p.getWorld().getName()).size()));
                             TextComponent e = new TextComponent("§4모두 삭제 ");
                             e.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("§4클릭해서 모든 스폰 위치 삭제하기 ").create()));
                             e.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/murder spawn remove all"));
@@ -61,16 +61,16 @@ public class MurderTHandler {
                                 final int x = Integer.parseInt(parts[0]);
                                 final int y = Integer.parseInt(parts[1]);
                                 final int z = Integer.parseInt(parts[2]);
-                                TextComponent msg = new TextComponent(Main.INDEX + "§e" + loopnum + " §f| " + "§2(§a" + s.replace(",", "§2, §a") + "§2) §f| ");
+                                TextComponent msg = new TextComponent(String.format("%s§e%d §f| §2(§a%s§2) §f| ", Main.INDEX, loopnum, s.replace(",", "§2, §a")));
                                 TextComponent t = new TextComponent("§e텔레포트 ");
                                 t.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("§e클릭해서 텔레포트하기 ").create()));
-                                t.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/tp " + x + " " + y + " " + z));
+                                t.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, String.format("/tp %d %d %d", x, y, z)));
                                 msg.addExtra(t);
                                 msg.addExtra("§f| ");
                                 TextComponent r = new TextComponent("§c삭제 ");
                                 ComponentBuilder cb2 = new ComponentBuilder("§c클릭해서 삭제하기 ");
                                 r.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, cb2.create()));
-                                r.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/murder spawn remove " + s));
+                                r.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, String.format("/murder spawn remove %s", s)));
                                 msg.addExtra(r);
                                 p.spigot().sendMessage(msg);
                             }
@@ -97,7 +97,7 @@ public class MurderTHandler {
                                         p.playSound(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.MASTER, 0.75F, 1);
                                     }
                                 } else if (SpawnLocationData.getSpawnLocation(p.getWorld().getName()).contains(args[2])) {
-                                    TextComponent msg = new TextComponent(Main.INDEX + "§e정말 §2(§a" + args[2].replace(",", "§2, §a") + "§2)§e에 있는 스폰 위치를 삭제하려면 ");
+                                    TextComponent msg = new TextComponent(String.format("%s§e정말 §2(§a%s§2)§e에 있는 스폰 위치를 삭제하려면 ", Main.INDEX, args[2].replace(",", "§2, §a")));
                                     TextComponent t = new TextComponent("§b여기§e를");
                                     t.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("§c클릭해서 삭제하기 ").create()));
                                     t.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/murder spawn remove " + args[2] + " confirm"));
