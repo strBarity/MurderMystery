@@ -40,10 +40,10 @@ public class MurderHandler {
     public static void startGame(@NotNull World w) {
         try {
             if (Bukkit.getOnlinePlayers().size() < 2) {
-                s.broadcastMessage(INDEX + "§c플레이어 수가 너무 적어 게임이 시작되지 않았습니다.");
+                SERVER.broadcastMessage(INDEX + "§c플레이어 수가 너무 적어 게임이 시작되지 않았습니다.");
                 return;
             } else if (SpawnLocationData.getSpawnLocation(Main.CURRENTMAP.getName()).isEmpty()) {
-                s.broadcastMessage(INDEX + "§c지정된 스폰 위치가 없어 게임이 시작되지 않았습니다.");
+                SERVER.broadcastMessage(INDEX + "§c지정된 스폰 위치가 없어 게임이 시작되지 않았습니다.");
                 return;
             } gameStarted = true;
             innocentAlive = Bukkit.getOnlinePlayers().size() - 1;
@@ -115,27 +115,27 @@ public class MurderHandler {
             bowM.setUnbreakable(true);
             bowM.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE);
             bow.setItemMeta(bowM);
-            sc.scheduleSyncDelayedTask(Main.getPlugin(Main.class), () -> {
+            SCHEDULER.scheduleSyncDelayedTask(Main.getPlugin(Main.class), () -> {
                 Bukkit.broadcastMessage(INDEX + "§e살인자가 §b5§e초 후에 칼을 얻습니다!");
                 for (Player p : Bukkit.getOnlinePlayers()) p.playSound(p.getLocation(), Sound.BLOCK_NOTE_HAT, SoundCategory.MASTER, 100F, 1F);
             }, 100L);
-            sc.scheduleSyncDelayedTask(Main.getPlugin(Main.class), () -> {
+            SCHEDULER.scheduleSyncDelayedTask(Main.getPlugin(Main.class), () -> {
                 Bukkit.broadcastMessage(INDEX + "§e살인자가 §b4§e초 후에 칼을 얻습니다!");
                 for (Player p : Bukkit.getOnlinePlayers()) p.playSound(p.getLocation(), Sound.BLOCK_NOTE_HAT, SoundCategory.MASTER, 100F, 1F);
             }, 120L);
-            sc.scheduleSyncDelayedTask(Main.getPlugin(Main.class), () -> {
+            SCHEDULER.scheduleSyncDelayedTask(Main.getPlugin(Main.class), () -> {
                 Bukkit.broadcastMessage(INDEX + "§e살인자가 §b3§e초 후에 칼을 얻습니다!");
                 for (Player p : Bukkit.getOnlinePlayers()) p.playSound(p.getLocation(), Sound.BLOCK_NOTE_HAT, SoundCategory.MASTER, 100F, 1F);
             }, 140L);
-            sc.scheduleSyncDelayedTask(Main.getPlugin(Main.class), () -> {
+            SCHEDULER.scheduleSyncDelayedTask(Main.getPlugin(Main.class), () -> {
                 Bukkit.broadcastMessage(INDEX + "§e살인자가 §b2§e초 후에 칼을 얻습니다!");
                 for (Player p : Bukkit.getOnlinePlayers()) p.playSound(p.getLocation(), Sound.BLOCK_NOTE_HAT, SoundCategory.MASTER, 100F, 1F);
             }, 160L);
-            sc.scheduleSyncDelayedTask(Main.getPlugin(Main.class), () -> {
+            SCHEDULER.scheduleSyncDelayedTask(Main.getPlugin(Main.class), () -> {
                 Bukkit.broadcastMessage(INDEX + "§e살인자가 §b1§e초 후에 칼을 얻습니다!");
                 for (Player p : Bukkit.getOnlinePlayers()) p.playSound(p.getLocation(), Sound.BLOCK_NOTE_HAT, SoundCategory.MASTER, 100F, 1F);
             }, 180L);
-            sc.scheduleSyncDelayedTask(Main.getPlugin(Main.class), () -> {
+            SCHEDULER.scheduleSyncDelayedTask(Main.getPlugin(Main.class), () -> {
                 players[0].getInventory().setItem(1, knife);
                 players[1].getInventory().setItem(1, bow);
                 players[1].getInventory().setItem(9, new ItemStack(Material.ARROW));
@@ -193,7 +193,7 @@ public class MurderHandler {
             if (heroName != null) Bukkit.broadcastMessage("                                    §7영웅: §f제작중");
             Bukkit.broadcastMessage("\n" + boarder);
             CountdownTimer.setStartCountdown(70L);
-            sc.scheduleSyncDelayedTask(Main.getPlugin(Main.class), () -> {
+            SCHEDULER.scheduleSyncDelayedTask(Main.getPlugin(Main.class), () -> {
                 murderer = null;
                 detective = null;
                 for (Player p : Bukkit.getOnlinePlayers()) {
@@ -214,7 +214,7 @@ public class MurderHandler {
                     if (!EventListener.spinStandId.isEmpty()) {
                         for (Map.Entry<ArmorStand, Integer> entry : EventListener.spinStandId.entrySet()) {
                             entry.getKey().remove();
-                            sc.cancelTask(entry.getValue());
+                            SCHEDULER.cancelTask(entry.getValue());
                         }
                     }
                 }

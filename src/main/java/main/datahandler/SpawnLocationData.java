@@ -22,7 +22,7 @@ public class SpawnLocationData {
     private static final File spawnLocation = new File("plugins/Murder/spawnLocationData.yml");
     public static final HashMap<Player, Integer> slWandId = new HashMap<>();
     public static void registerSLWand(Player p) {
-        int i = sc.scheduleSyncRepeatingTask(Main.getPlugin(Main.class), () -> {
+        int i = SCHEDULER.scheduleSyncRepeatingTask(Main.getPlugin(Main.class), () -> {
             if (p.getInventory().getItemInMainHand() != null && p.getInventory().getItemInMainHand().getItemMeta() != null && p.getInventory().getItemInMainHand().getItemMeta().getDisplayName() != null && p.getInventory().getItemInMainHand().getItemMeta().getDisplayName().contains("스폰 위치 설정 도구")) {
                 for (String s : getSpawnLocation(Main.CURRENTMAP.getName())) {
                     int[] c = toSplitCoord(s);

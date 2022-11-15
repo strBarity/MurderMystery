@@ -59,7 +59,7 @@ public class EventListener implements Listener {
     public static final HashMap<Player, ChatColor> rankColor = new HashMap<>();
     public static void registerArmorstandSpin(ArmorStand a) {
         try {
-            int i = sc.scheduleSyncRepeatingTask(Main.getPlugin(Main.class), () -> {
+            int i = SCHEDULER.scheduleSyncRepeatingTask(Main.getPlugin(Main.class), () -> {
                 Location l = a.getLocation();
                 a.teleport(new Location(a.getWorld(), l.getX(), l.getY(), l.getZ(), l.getYaw() + 7.5F, l.getPitch()));
             }, 0, 1L);
@@ -70,7 +70,7 @@ public class EventListener implements Listener {
     }
     public static void registerAntiOutMap(Player p) {
         try {
-            int i = s.getScheduler().scheduleSyncRepeatingTask(Main.getPlugin(Main.class), () -> {
+            int i = SERVER.getScheduler().scheduleSyncRepeatingTask(Main.getPlugin(Main.class), () -> {
                 Location l = p.getLocation();
                 if (l.getX() < 29 || l.getX() > 219 || l.getY() < 24 || l.getY() > 125 || l.getZ() < 22 || l.getZ() > 330) {
                     if (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))
@@ -90,7 +90,7 @@ public class EventListener implements Listener {
         }
     } public static void registerBoard(Player p) {
         try {
-            int i = s.getScheduler().scheduleSyncRepeatingTask(Main.getPlugin(Main.class), () -> {
+            int i = SERVER.getScheduler().scheduleSyncRepeatingTask(Main.getPlugin(Main.class), () -> {
                 final Scoreboard board = Bukkit.getScoreboardManager().getNewScoreboard();
                 final Objective objective = board.registerNewObjective("§e§l머더 미스터리", "dummy");
                 objective.setDisplaySlot(DisplaySlot.SIDEBAR);
@@ -128,7 +128,7 @@ public class EventListener implements Listener {
                     b1.setScore(8);
                     Score m = objective.getScore("§f맵: §a" + p.getWorld().getName());
                     m.setScore(7);
-                    Score l = objective.getScore(String.format("§f플레이어: §a%d/32", s.getOnlinePlayers().size()));
+                    Score l = objective.getScore(String.format("§f플레이어: §a%d/32", SERVER.getOnlinePlayers().size()));
                     l.setScore(6);
                     Score b2 = objective.getScore("  ");
                     b2.setScore(5);
@@ -296,8 +296,8 @@ public class EventListener implements Listener {
                 p.setPlayerListName("§b[MVP§c+§b] " + p.getName() + " ");
                 e.setJoinMessage(String.format("%s§b누군가...?§e가 참여했습니다. (§b%d§e/§b32§e)", INDEX, Bukkit.getOnlinePlayers().size()));
                 for (Player o : Bukkit.getOnlinePlayers()) o.playSound(o.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.MASTER, 100, 1);
-                sc.scheduleSyncDelayedTask(Main.getPlugin(Main.class), () -> {
-                    s.broadcastMessage(INDEX + "§c키가 너무 작아서 이름이 안보여요... 죄송합니다");
+                SCHEDULER.scheduleSyncDelayedTask(Main.getPlugin(Main.class), () -> {
+                    SERVER.broadcastMessage(INDEX + "§c키가 너무 작아서 이름이 안보여요... 죄송합니다");
                     for (Player o : Bukkit.getOnlinePlayers()) o.playSound(o.getLocation(), Sound.BLOCK_ANVIL_LAND, SoundCategory.MASTER, 100, 1);
                 }, 60L);
             } else {
@@ -340,9 +340,9 @@ public class EventListener implements Listener {
             Player p = e.getPlayer();
             if (MurderHandler.gameStarted) e.setQuitMessage(null);
             else e.setQuitMessage(String.format("%s%s%s§e님이 나갔습니다! (§b%d§e/§b32§e)", INDEX, rankColor.get(p), p.getName(), Bukkit.getOnlinePlayers().size() - 1));
-            sc.cancelTask(boardId.get(e.getPlayer()));
-            sc.cancelTask(antiOutMapId.get(e.getPlayer()));
-            sc.cancelTask(SpawnLocationData.slWandId.get(e.getPlayer()));
+            SCHEDULER.cancelTask(boardId.get(e.getPlayer()));
+            SCHEDULER.cancelTask(antiOutMapId.get(e.getPlayer()));
+            SCHEDULER.cancelTask(SpawnLocationData.slWandId.get(e.getPlayer()));
         } catch (Exception exception) {
             printException(exception);
         }
@@ -486,7 +486,7 @@ public class EventListener implements Listener {
                 PlayerConnection connection = ((CraftPlayer) player).getHandle().playerConnection;
                 connection.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, npc));
                 connection.sendPacket(new PacketPlayOutNamedEntitySpawn(npc));
-                sc.scheduleSyncDelayedTask(Main.getPlugin(Main.class), () -> {
+                SCHEDULER.scheduleSyncDelayedTask(Main.getPlugin(Main.class), () -> {
                     connection.sendPacket(new PacketPlayOutEntityMetadata(npc.getId(), npc.getDataWatcher(), true));
                     connection.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, npc));
                     connection.sendPacket(new PacketPlayOutEntityHeadRotation(npc, (byte) 64));

@@ -25,8 +25,8 @@ import java.util.Objects;
 
 public final class Main extends JavaPlugin {
     public static final World CURRENTMAP = Bukkit.getWorld("archives");
-    public static final Server s = Bukkit.getServer();
-    public static final BukkitScheduler sc = Bukkit.getScheduler();
+    public static final Server SERVER = Bukkit.getServer();
+    public static final BukkitScheduler SCHEDULER = Bukkit.getScheduler();
     public static final String INDEX = "§f[§cMurder§f] ";
     @Override
     public void onEnable() {
@@ -36,10 +36,10 @@ public final class Main extends JavaPlugin {
             TranslateHandler.initialize();
             Bukkit.getPluginManager().registerEvents(new EventListener(), this); /* 이벤트 리스너 등록 */
             Bukkit.getConsoleSender().sendMessage(INDEX + "§a플러그인이 활성화되었습니다."); /* 플러그인 활성화 메시지 전송 */
-            sc.scheduleSyncRepeatingTask(this, new CountdownTimer(), 0L, 20L); /* 타이머 등록 & 시작 */
-            sc.scheduleSyncRepeatingTask(this, new ExitTimer(), 0L, 1L); /* 타이머 등록 & 시작 */
-            sc.scheduleSyncRepeatingTask(this, new CMDCooldownTimer(), 0L, 20L); /* 타이머 등록 & 시작 */
-            sc.scheduleSyncRepeatingTask(this, new ItemCooldownTimer(), 0L, 2L); /* 타이머 등록 & 시작 */
+            SCHEDULER.scheduleSyncRepeatingTask(this, new CountdownTimer(), 0L, 20L); /* 타이머 등록 & 시작 */
+            SCHEDULER.scheduleSyncRepeatingTask(this, new ExitTimer(), 0L, 1L); /* 타이머 등록 & 시작 */
+            SCHEDULER.scheduleSyncRepeatingTask(this, new CMDCooldownTimer(), 0L, 20L); /* 타이머 등록 & 시작 */
+            SCHEDULER.scheduleSyncRepeatingTask(this, new ItemCooldownTimer(), 0L, 2L); /* 타이머 등록 & 시작 */
             this.getDescription().getCommands().keySet().forEach(s -> { /* 커맨드 & 탭컴플리터 등록 */
                 Objects.requireNonNull(getCommand(s)).setExecutor(new CMDHandler()); /* 커맨드 처리 클래스 등록 */
                 Objects.requireNonNull(getCommand(s)).setTabCompleter(new CMDHandler()); /* 탭컴플리터(커맨드 제안) 등록 */
@@ -102,9 +102,9 @@ public final class Main extends JavaPlugin {
         }
     }
     public static void printException(@NotNull Exception e) {
-        s.broadcastMessage(String.format("%s§6%s.%s()§c에서 오류가 발생했습니다.", INDEX, Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()));
-        if (e.getMessage() != null) s.broadcastMessage(String.format("%s§4%s: §c%s", INDEX, e.getClass().getName(), e.getMessage()));
-        else s.broadcastMessage(String.format("%s§4%s: §c알 수 없는 오류", INDEX, e.getClass().getName()));
+        SERVER.broadcastMessage(String.format("%s§6%s.%s()§c에서 오류가 발생했습니다.", INDEX, Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()));
+        if (e.getMessage() != null) SERVER.broadcastMessage(String.format("%s§4%s: §c%s", INDEX, e.getClass().getName(), e.getMessage()));
+        else SERVER.broadcastMessage(String.format("%s§4%s: §c알 수 없는 오류", INDEX, e.getClass().getName()));
         e.printStackTrace();
     }
 }
