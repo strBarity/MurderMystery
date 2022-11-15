@@ -23,6 +23,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
+import static java.lang.String.*;
 import static main.Main.*;
 
 public class MurderHandler {
@@ -186,10 +187,10 @@ public class MurderHandler {
                     if (p == murderer) p.sendTitle("§a승리했습니다!", "§e모든 플레이어를 처치했습니다!", 0, 200, 0);
                     else p.sendTitle("§c패배했습니다!", "§e모든 시민이 사망했습니다!", 0, 200, 0);
                 }
-            } if (bowType == BowType.DectectiveAlive) Bukkit.broadcastMessage(String.format("\n                                    §7탐정: %s%s", EventListener.rankColor.get(detective), detective.getName()));
-            else Bukkit.broadcastMessage(String.format("\n                                    §7탐정: %s§m%s", EventListener.rankColor.get(detective), detective.getName()));
-            if (innocentWin) Bukkit.broadcastMessage(String.format("                                §7살인자: %s%s§7 (§6%d§7 킬)", EventListener.rankColor.get(murderer), murderer.getName(), murderKills));
-            else Bukkit.broadcastMessage(String.format("                                     §7살인자: %s§m%s§7 (§6%d§7 킬)", EventListener.rankColor.get(murderer), murderer.getName(), murderKills));
+            } if (bowType == BowType.DectectiveAlive) Bukkit.broadcastMessage(format("\n                                    §7탐정: %s%s", EventListener.rankColor.get(detective), detective.getName()));
+            else Bukkit.broadcastMessage(format("\n                                    §7탐정: %s§m%s", EventListener.rankColor.get(detective), detective.getName()));
+            if (innocentWin) Bukkit.broadcastMessage(format("                                §7살인자: %s%s§7 (§6%d§7 킬)", EventListener.rankColor.get(murderer), murderer.getName(), murderKills));
+            else Bukkit.broadcastMessage(format("                                     §7살인자: %s§m%s§7 (§6%d§7 킬)", EventListener.rankColor.get(murderer), murderer.getName(), murderKills));
             if (heroName != null) Bukkit.broadcastMessage("                                    §7영웅: §f제작중");
             Bukkit.broadcastMessage("\n" + boarder);
             CountdownTimer.setStartCountdown(70L);

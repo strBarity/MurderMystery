@@ -9,8 +9,8 @@ import java.util.Map;
 public class TranslateHandler {
     public enum MurderLanguage {Korean, English}
 
-    public static Map<String, String> KoreanMessage = new HashMap<>();
-    public static Map<String, String> EnglishMessage = new HashMap<>();
+    public static final Map<String, String> KoreanMessage = new HashMap<>();
+    public static final Map<String, String> EnglishMessage = new HashMap<>();
 
     public static void initialize() {
         setString("murder.key.asdf", "ㅁㄴㅇㄹ", "asdf");

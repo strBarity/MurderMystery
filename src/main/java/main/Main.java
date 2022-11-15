@@ -23,6 +23,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
+import static java.lang.String.format;
+
 public final class Main extends JavaPlugin {
     public static final World CURRENTMAP = Bukkit.getWorld("archives");
     public static final Server SERVER = Bukkit.getServer();
@@ -102,9 +104,9 @@ public final class Main extends JavaPlugin {
         }
     }
     public static void printException(@NotNull Exception e) {
-        SERVER.broadcastMessage(String.format("%s§6%s.%s()§c에서 오류가 발생했습니다.", INDEX, Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()));
-        if (e.getMessage() != null) SERVER.broadcastMessage(String.format("%s§4%s: §c%s", INDEX, e.getClass().getName(), e.getMessage()));
-        else SERVER.broadcastMessage(String.format("%s§4%s: §c알 수 없는 오류", INDEX, e.getClass().getName()));
+        SERVER.broadcastMessage(format("%s§6%s.%s()§c에서 오류가 발생했습니다.", INDEX, Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()));
+        if (e.getMessage() != null) SERVER.broadcastMessage(format("%s§4%s: §c%s", INDEX, e.getClass().getName(), e.getMessage()));
+        else SERVER.broadcastMessage(format("%s§4%s: §c알 수 없는 오류", INDEX, e.getClass().getName()));
         e.printStackTrace();
     }
 }
