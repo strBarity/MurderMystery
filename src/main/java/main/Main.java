@@ -20,7 +20,6 @@ import org.bukkit.craftbukkit.v1_12_R1.scoreboard.CraftScoreboard;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
-import org.bukkit.scoreboard.ScoreboardManager;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
@@ -33,8 +32,8 @@ public final class Main extends JavaPlugin {
     public static final World CURRENTMAP = SERVER.getWorld("archives");
     public static final BukkitScheduler SCHEDULER = SERVER.getScheduler();
     public static final ConsoleCommandSender LOGGER = SERVER.getConsoleSender();
-    public static final ScoreboardManager SCOREBOARD = SERVER.getScoreboardManager();
     public static final String INDEX = "§f[§cMurder§f] ";
+
     @Override
     public void onEnable() {
         try {

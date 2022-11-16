@@ -100,7 +100,7 @@ public class EventListener implements Listener {
     } public static void registerBoard(Player p) {
         try {
             int i = SCHEDULER.scheduleSyncRepeatingTask(Main.getPlugin(Main.class), () -> {
-                final Scoreboard board = SCOREBOARD.getNewScoreboard();
+                final Scoreboard board = SERVER.getScoreboardManager().getNewScoreboard();
                 final Objective objective = board.registerNewObjective("§e§l머더 미스터리", "dummy");
                 objective.setDisplaySlot(DisplaySlot.SIDEBAR);
                 Score t = objective.getScore("§7" + LocalDate.now().format(DateTimeFormatter.ofPattern("MM/dd/yy")) + "§8 Murder");
@@ -392,7 +392,7 @@ public class EventListener implements Listener {
     }
     public static void mainScoreboardSet(@NotNull Player p) {
         try {
-            ScoreboardTeam team = new ScoreboardTeam(((CraftScoreboard) SCOREBOARD.getMainScoreboard()).getHandle(), p.getName());
+            ScoreboardTeam team = new ScoreboardTeam(((CraftScoreboard) SERVER.getScoreboardManager().getMainScoreboard()).getHandle(), p.getName());
             team.setCollisionRule(EnumTeamPush.NEVER);
             team.setNameTagVisibility(EnumNameTagVisibility.NEVER);
             team.setCanSeeFriendlyInvisibles(false);
@@ -484,7 +484,7 @@ public class EventListener implements Listener {
                 MinecraftServer server = ((CraftServer) Bukkit.getServer()).getServer();
                 WorldServer world = ((CraftWorld) Bukkit.getWorlds().get(0)).getHandle();
                 EntityPlayer npc = new EntityPlayer(server, world, new GameProfile(UUID.randomUUID(), ""), new PlayerInteractManager(world));
-                ScoreboardTeam team = new ScoreboardTeam(((CraftScoreboard) SCOREBOARD.getMainScoreboard()).getHandle(), victim.getName());
+                ScoreboardTeam team = new ScoreboardTeam(((CraftScoreboard) SERVER.getScoreboardManager().getMainScoreboard()).getHandle(), victim.getName());
                 team.setNameTagVisibility(EnumNameTagVisibility.NEVER);
                 team.setCollisionRule(EnumTeamPush.NEVER);
                 npc.getProfile().getProperties().removeAll("textures");

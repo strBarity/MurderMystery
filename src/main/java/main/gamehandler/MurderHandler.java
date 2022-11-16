@@ -3,8 +3,7 @@ package main.gamehandler;
 import main.Main;
 import main.timerhandler.CountdownTimer;
 import net.minecraft.server.v1_12_R1.*;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
+import org.bukkit.*;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
@@ -79,7 +78,7 @@ public class MurderHandler {
                 locations[r] = tmp;
             } int n = 0;
             Player[] players = new Player[SERVER.getOnlinePlayers().size()];
-            ScoreboardTeam team = new ScoreboardTeam(((CraftScoreboard) SCOREBOARD.getMainScoreboard()).getHandle(), "");
+            ScoreboardTeam team = new ScoreboardTeam(((CraftScoreboard) SERVER.getScoreboardManager().getMainScoreboard()).getHandle(), "");
             team.setCollisionRule(ScoreboardTeamBase.EnumTeamPush.NEVER);
             team.setNameTagVisibility(ScoreboardTeamBase.EnumNameTagVisibility.NEVER);
             team.setCanSeeFriendlyInvisibles(false);
