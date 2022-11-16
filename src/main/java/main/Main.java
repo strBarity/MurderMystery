@@ -22,6 +22,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 import static java.lang.String.format;
@@ -33,6 +36,7 @@ public final class Main extends JavaPlugin {
     public static final BukkitScheduler SCHEDULER = SERVER.getScheduler();
     public static final ConsoleCommandSender LOGGER = SERVER.getConsoleSender();
     public static final String INDEX = "§f[§cMurder§f] ";
+    public static final List<String> EXCEPTIONS = new ArrayList<>();
 
     @Override
     public void onEnable() {
@@ -108,9 +112,18 @@ public final class Main extends JavaPlugin {
         }
     }
     public static void printException(@NotNull Exception e) {
-        SERVER.broadcastMessage(format("%s§6%s.%s()§c에서 오류가 발생했습니다.", INDEX, Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()));
-        if (e.getMessage() != null) SERVER.broadcastMessage(format("%s§4%s: §c%s", INDEX, e.getClass().getName(), e.getMessage()));
-        else SERVER.broadcastMessage(format("%s§4%s: §c알 수 없는 오류", INDEX, e.getClass().getName()));
+        String className = Thread.currentThread().getStackTrace()[2].getClassName();
+        String methodName = Thread.currentThread().getStackTrace()[2].getMethodName();
+        String errorName = e.getClass().getName();
+        String errorMessage = e.getMessage();
+        SERVER.broadcastMessage(format("%s§6%s.%s()§c에서 오류가 발생했습니다.", INDEX, className, methodName));
+        if (e.getMessage() != null) {
+            EXCEPTIONS.add(format("§4%s: §c%s\n%s§c> §6%s.%s() §4(§c%tT§4)", errorName, errorMessage, INDEX, className, methodName, new Date()));
+            SERVER.broadcastMessage(format("%s§4%s: §c%s", INDEX, errorName, errorMessage));
+        } else {
+            EXCEPTIONS.add(format("§4%s: §c알 수 없는 오류 §7(오류 메시지 없음)\n%s§c> §6%s.%s() §4(§c%tT§4)", errorName, INDEX, className, methodName, new Date()));
+            SERVER.broadcastMessage(format("%s§4%s: §c알 수 없는 오류", INDEX, errorName));
+        }
         e.printStackTrace();
     }
 }

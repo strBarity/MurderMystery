@@ -40,7 +40,28 @@ public class MurderTHandler {
             }
             switch (args[0]) {
                 case "exception":
-                    throw new RuntimeException(args[1]);
+                    switch (args[1]) {
+                        case "create":
+                            if (args.length == 2) throw new RuntimeException();
+                            else throw new RuntimeException(args[2]);
+                        case "list":
+                            p.sendMessage(INDEX + "§c----------------[ §6최근 오류 목록 §c]----------------");
+                            int l = 0;
+                            if (EXCEPTIONS.isEmpty()) p.sendMessage(INDEX + "§7서버 시작 후 기록된 오류가 없습니다.");
+                            else {
+                                for (String s : EXCEPTIONS) {
+                                    l++;
+                                    p.sendMessage(String.format("%s§e%d §6| %s", INDEX, l, s));
+                                }
+                            } p.sendMessage(INDEX + "§c--------------------------------------------------");
+                            break;
+                        case "clear":
+                            EXCEPTIONS.clear();
+                            p.sendMessage(INDEX + "§a모든 오류 기록을 제거했습니다.");
+                            break;
+                        default:
+                            p.sendMessage(w);
+                    } break;
                 case "spawn":
                     switch (args[1]) {
                         case "wand":

@@ -43,12 +43,14 @@ public class CMDHandler implements TabExecutor {
         try {
             if (commandSender.isOp()) {
                 if ("murder".equals(s)) {
-                    if (strings.length == 1) return Arrays.asList("task", "game", "spawn");
+                    if (strings.length == 1) return Arrays.asList("exception", "game", "spawn", "task");
                     else if (strings.length == 2) {
                         switch (strings[0]) {
                             case "task": return Collections.singletonList("cancel");
                             case "game": return Arrays.asList("start", "stop", "shorten");
                             case "spawn": return Arrays.asList("wand", "list", "remove");
+                            case "exception": return Arrays.asList("create", "list", "clear");
+                            default: return Collections.emptyList();
                         }
                     }
                 }
