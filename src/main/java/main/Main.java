@@ -101,8 +101,7 @@ public final class Main extends JavaPlugin {
                 for (int z = 174; z <= 178; z++)
                     for (int y = 90; y <= 95; y++) CURRENTMAP.getBlockAt(96, y, z).setType(Material.IRON_FENCE);
                 CURRENTMAP.getBlockAt(98, 98, 176).setType(Material.CAKE_BLOCK);
-            }
-            if (!summonedNpcsId.isEmpty())
+            } if (!summonedNpcsId.isEmpty())
                 for (Player p : SERVER.getOnlinePlayers())
                     for (int i : summonedNpcsId)
                         ((CraftPlayer) p).getHandle().playerConnection.sendPacket(new PacketPlayOutEntityDestroy(i));
@@ -112,18 +111,23 @@ public final class Main extends JavaPlugin {
         }
     }
     public static void printException(@NotNull Exception e) {
-        String className = Thread.currentThread().getStackTrace()[2].getClassName();
-        String methodName = Thread.currentThread().getStackTrace()[2].getMethodName();
-        String errorName = e.getClass().getName();
-        String errorMessage = e.getMessage();
-        SERVER.broadcastMessage(format("%s§6%s.%s()§c에서 오류가 발생했습니다.", INDEX, className, methodName));
-        if (e.getMessage() != null) {
-            EXCEPTIONS.add(format("§4%s: §c%s\n%s§c> §6%s.%s() §4(§c%tT§4)", errorName, errorMessage, INDEX, className, methodName, new Date()));
-            SERVER.broadcastMessage(format("%s§4%s: §c%s", INDEX, errorName, errorMessage));
-        } else {
-            EXCEPTIONS.add(format("§4%s: §c알 수 없는 오류 §7(오류 메시지 없음)\n%s§c> §6%s.%s() §4(§c%tT§4)", errorName, INDEX, className, methodName, new Date()));
-            SERVER.broadcastMessage(format("%s§4%s: §c알 수 없는 오류", INDEX, errorName));
+        try {
+            e.printStackTrace();
+            String className = Thread.currentThread().getStackTrace()[2].getClassName();
+            String methodName = Thread.currentThread().getStackTrace()[2].getMethodName();
+            String errorName = e.getClass().getName();
+            String errorMessage = e.getMessage();
+            SERVER.broadcastMessage(format("%s§6%s.%s()§c에서 오류가 발생했습니다.", INDEX, className, methodName));
+            if (e.getMessage() != null) {
+                EXCEPTIONS.add(format("§4%s: §c%s\n%s§c> §6%s.%s() §4(§c%tT§4)", errorName, errorMessage, INDEX, className, methodName, new Date()));
+                SERVER.broadcastMessage(format("%s§4%s: §c%s", INDEX, errorName, errorMessage));
+            } else {
+                EXCEPTIONS.add(format("§4%s: §c알 수 없는 오류 §7(오류 메시지 없음)\n%s§c> §6%s.%s() §4(§c%tT§4)", errorName, INDEX, className, methodName, new Date()));
+                SERVER.broadcastMessage(format("%s§4%s: §c알 수 없는 오류", INDEX, errorName));
+            }
+        } catch (Exception e2) {
+            Bukkit.getServer().broadcastMessage(INDEX + "§4§l오류 출력 도중 또 다른 오류가 발생하였습니다. §c(콘솔 확인바람)");
+            e2.printStackTrace();
         }
-        e.printStackTrace();
     }
 }
