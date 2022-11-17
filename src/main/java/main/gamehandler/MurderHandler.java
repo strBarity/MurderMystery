@@ -45,7 +45,7 @@ public class MurderHandler {
             if (SERVER.getOnlinePlayers().size() < 2) {
                 SERVER.broadcastMessage(INDEX + "§c플레이어 수가 너무 적어 게임이 시작되지 않았습니다.");
                 return;
-            } else if (getSpawnLocation(Main.CURRENTMAP.getName()).isEmpty()) {
+            } else if (getSpawnLocation(CURRENTMAP.getName()).isEmpty()) {
                 SERVER.broadcastMessage(INDEX + "§c지정된 스폰 위치가 없어 게임이 시작되지 않았습니다.");
                 return;
             } gameStarted = true;
@@ -166,6 +166,16 @@ public class MurderHandler {
             for (int z = 174; z <= 178; z++)
                 for (int y = 90; y <= 95; y++) w.getBlockAt(96, y, z).setType(Material.IRON_FENCE);
             w.getBlockAt(98, 98, 176).setType(Material.CAKE_BLOCK);
+
+            int blanks = 43 - detective.getName().length();
+            StringBuilder blank = new StringBuilder();
+            for (int i = 0; i < blanks; i++) {
+                blank.append(" ");
+            } int blanks1 = 39 - murderer.getName().length();
+            StringBuilder blank1 = new StringBuilder();
+            for (int i = 0; i < blanks1; i++) {
+                blank1.append(" ");
+            }
             String boarder = "§a--------------------------------------------------------------------------------";
             SERVER.broadcastMessage(boarder + "\n                                   §f§l머더 미스터리");
             if (innocentWin) {
@@ -189,10 +199,10 @@ public class MurderHandler {
                     if (p == murderer) p.sendTitle("§a승리했습니다!", "§e모든 플레이어를 처치했습니다!", 0, 200, 0);
                     else p.sendTitle("§c패배했습니다!", "§e모든 시민이 사망했습니다!", 0, 200, 0);
                 }
-            } if (bowType == BowType.DectectiveAlive) SERVER.broadcastMessage(format("\n                                    §7탐정: %s%s", rankColor.get(detective), detective.getName()));
-            else SERVER.broadcastMessage(format("\n                                    §7탐정: %s§m%s", rankColor.get(detective), detective.getName()));
-            if (innocentWin) SERVER.broadcastMessage(format("                                §7살인자: %s%s§7 (§6%d§7 킬)", rankColor.get(murderer), murderer.getName(), murderKills));
-            else SERVER.broadcastMessage(format("                                     §7살인자: %s§m%s§7 (§6%d§7 킬)", rankColor.get(murderer), murderer.getName(), murderKills));
+            } if (bowType == BowType.DectectiveAlive) SERVER.broadcastMessage(format("\n%s§7탐정: %s%s", blank, rankColor.get(detective), detective.getName()));
+            else SERVER.broadcastMessage(format("\n%s§7탐정: %s§m%s", blank, rankColor.get(detective), detective.getName()));
+            if (innocentWin) SERVER.broadcastMessage(format("%s§7살인자: %s%s§7 (§6%d§7 킬)", blank1, rankColor.get(murderer), murderer.getName(), murderKills));
+            else SERVER.broadcastMessage(format("%s§7살인자: %s§m%s§7 (§6%d§7 킬)", blank1, rankColor.get(murderer), murderer.getName(), murderKills));
             if (heroName != null) SERVER.broadcastMessage("                                    §7영웅: §f제작중");
             SERVER.broadcastMessage("\n" + boarder);
             CountdownTimer.setStartCountdown(70L);

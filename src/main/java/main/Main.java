@@ -37,7 +37,6 @@ public final class Main extends JavaPlugin {
     public static final ConsoleCommandSender LOGGER = SERVER.getConsoleSender();
     public static final String INDEX = "§f[§cMurder§f] ";
     public static final List<String> EXCEPTIONS = new ArrayList<>();
-
     @Override
     public void onEnable() {
         try {
